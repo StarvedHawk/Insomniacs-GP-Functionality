@@ -1,0 +1,3 @@
+This Package was cloned from Antoinelame's GazeTracking Project. 
+
+The Python files were then modified to suit the needs of this project

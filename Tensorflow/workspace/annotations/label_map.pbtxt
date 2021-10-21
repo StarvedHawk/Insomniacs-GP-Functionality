@@ -1,0 +1,52 @@
+item { 
+	name:'Sil'
+	id:1
+}
+item { 
+	name:'BMP'
+	id:2
+}
+item { 
+	name:'Cons'
+	id:3
+}
+item { 
+	name:'U'
+	id:4
+}
+item { 
+	name:'O'
+	id:5
+}
+item { 
+	name:'AEI'
+	id:6
+}
+item { 
+	name:'FV'
+	id:7
+}
+item { 
+	name:'QW'
+	id:8
+}
+item { 
+	name:'L'
+	id:9
+}
+item { 
+	name:'Ee'
+	id:10
+}
+item { 
+	name:'R'
+	id:11
+}
+item { 
+	name:'Th'
+	id:12
+}
+item { 
+	name:'ChJSh'
+	id:13
+}
