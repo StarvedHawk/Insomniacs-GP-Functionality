@@ -14,13 +14,14 @@ class GazeTracking(object):
     """
 
     def __init__(self):
+        self.initialized_Screen = False
         self.frame = None
         self.eye_left = None
         self.eye_right = None
         self.screen_right_top = None
         self.screen_right_bot = None
         self.screen_left_top = None
-        self.screen_left_top = None
+        self.screen_left_bot = None
         self.calibration = Calibration()
 
         # _face_detector is used to detect faces
@@ -88,7 +89,9 @@ class GazeTracking(object):
         if self.pupils_located:
             pupil_left = self.eye_left.pupil.x / (self.eye_left.center[0] * 2 - 10)
             pupil_right = self.eye_right.pupil.x / (self.eye_right.center[0] * 2 - 10)
-            return (pupil_left + pupil_right) / 2
+            result = (pupil_left + pupil_right) / 2
+            result = round(result, 2)
+            return result
 
     def vertical_ratio(self):
         """Returns a number between 0.0 and 1.0 that indicates the
@@ -98,7 +101,9 @@ class GazeTracking(object):
         if self.pupils_located:
             pupil_left = self.eye_left.pupil.y / (self.eye_left.center[1] * 2 - 10)
             pupil_right = self.eye_right.pupil.y / (self.eye_right.center[1] * 2 - 10)
-            return (pupil_left + pupil_right) / 2
+            result = (pupil_left + pupil_right) / 2
+            result = round(result, 2)
+            return result
 
     def is_right(self):
         """Returns true if the user is looking to the right"""
@@ -120,6 +125,33 @@ class GazeTracking(object):
         if self.pupils_located:
             blinking_ratio = (self.eye_left.blinking + self.eye_right.blinking) / 2
             return blinking_ratio > 3.8
+
+    def initialize_screen(self):
+        self.screen_right_top = [0,0]
+        self.screen_left_top = [0,0]
+        self.screen_right_bot = [0,0]
+        self.screen_left_bot = [0,0]
+        self.initialized_Screen = True
+    def save_Top_Right(self):
+        #if self.initialized_Screen:
+            self.screen_right_top = [self.horizontal_ratio(),self.vertical_ratio()]
+            self.initialized_Screen = False
+
+    def save_Bot_Right(self):
+        #if self.initialized_Screen:
+            self.screen_right_bot = [self.horizontal_ratio(), self.vertical_ratio()]
+            self.initialized_Screen = False
+    def save_Top_Left(self):
+        #if self.initialized_Screen:
+            self.screen_left_top = [self.horizontal_ratio(), self.vertical_ratio()]
+            self.initialized_Screen = False
+    def save_Bot_Left(self):
+        #if self.initialized_Screen:
+            self.screen_left_bot = [self.horizontal_ratio(), self.vertical_ratio()]
+            self.initialized_Screen = False
+    def Screen_coords(self):
+        Screen = [self.screen_right_top,self.screen_right_bot,self.screen_left_bot,self.screen_left_top]
+        return Screen
 
     def annotated_frame(self):
         """Returns the main frame with pupils highlighted"""
