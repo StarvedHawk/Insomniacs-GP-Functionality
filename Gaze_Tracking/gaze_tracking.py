@@ -90,7 +90,7 @@ class GazeTracking(object):
             pupil_left = self.eye_left.pupil.x / (self.eye_left.center[0] * 2 - 10)
             pupil_right = self.eye_right.pupil.x / (self.eye_right.center[0] * 2 - 10)
             result = (pupil_left + pupil_right) / 2
-            result = round(result, 2)
+            result = round(result, 4)
             return result
 
     def vertical_ratio(self):
@@ -102,7 +102,7 @@ class GazeTracking(object):
             pupil_left = self.eye_left.pupil.y / (self.eye_left.center[1] * 2 - 10)
             pupil_right = self.eye_right.pupil.y / (self.eye_right.center[1] * 2 - 10)
             result = (pupil_left + pupil_right) / 2
-            result = round(result, 2)
+            result = round(result, 4)
             return result
 
     def is_right(self):
@@ -132,23 +132,74 @@ class GazeTracking(object):
         self.screen_right_bot = [0,0]
         self.screen_left_bot = [0,0]
         self.initialized_Screen = True
-    def save_Top_Right(self):
-        #if self.initialized_Screen:
-            self.screen_right_top = [self.horizontal_ratio(),self.vertical_ratio()]
+    def save_Top_Right(self): #1
+        h = self.horizontal_ratio()
+        v = self.vertical_ratio()
+        if self.initialized_Screen:
+            h = self.horizontal_ratio()
+            v = self.vertical_ratio()
             self.initialized_Screen = False
+        else:
+            if h > self.screen_right_top[0]:
+                h = self.screen_right_top[0]
+            if h == 0:
+                h = self.horizontal_ratio()
+            if v > self.screen_right_top[1]:
+                v = self.screen_right_top[1]
+        self.screen_right_top = [h, v]
 
-    def save_Bot_Right(self):
-        #if self.initialized_Screen:
-            self.screen_right_bot = [self.horizontal_ratio(), self.vertical_ratio()]
+    def save_Bot_Right(self): #2
+        h = self.horizontal_ratio()
+        v = self.vertical_ratio()
+        if self.initialized_Screen:
+            h = self.horizontal_ratio()
+            v = self.vertical_ratio()
             self.initialized_Screen = False
-    def save_Top_Left(self):
-        #if self.initialized_Screen:
-            self.screen_left_top = [self.horizontal_ratio(), self.vertical_ratio()]
+        else:
+            if h > self.screen_right_bot[0]:            #Getting evaluated to 0
+                h = self.screen_right_bot[0]
+            if h == 0:
+                h = self.horizontal_ratio()
+            if v < self.screen_right_bot[1]:
+                v = self.screen_right_bot[1]
+            if v == 0:
+                v = self.vertical_ratio()
+        self.screen_right_bot = [h, v]
+    def save_Top_Left(self): #4
+        h = self.horizontal_ratio()
+        v = self.vertical_ratio()
+        if self.initialized_Screen:
+            h = self.horizontal_ratio()
+            v = self.vertical_ratio()
             self.initialized_Screen = False
-    def save_Bot_Left(self):
-        #if self.initialized_Screen:
-            self.screen_left_bot = [self.horizontal_ratio(), self.vertical_ratio()]
+        else:
+            if h < self.screen_left_top[0]:
+                h = self.screen_left_top[0]
+            if h == 0:
+                h = self.horizontal_ratio()
+            if v > self.screen_left_top[1]:
+                v = self.screen_left_top[1]
+            if v == 0:
+                v = self.vertical_ratio()
+        self.screen_left_top = [h, v]
+
+    def save_Bot_Left(self): #3
+        h = self.horizontal_ratio()
+        v = self.vertical_ratio()
+        if self.initialized_Screen:
+            h = self.horizontal_ratio()
+            v = self.vertical_ratio()
             self.initialized_Screen = False
+        else:
+            if h > self.screen_left_bot[0]:
+                h = self.screen_left_bot[0]
+            if h == 0:
+                h = self.horizontal_ratio()
+            if v > self.screen_left_bot[1]:
+                v = self.screen_left_bot[1]
+            if v == 0:
+                v = self.vertical_ratio()
+        self.screen_left_bot = [h, v]
     def Screen_coords(self):
         Screen = [self.screen_right_top,self.screen_right_bot,self.screen_left_bot,self.screen_left_top]
         return Screen

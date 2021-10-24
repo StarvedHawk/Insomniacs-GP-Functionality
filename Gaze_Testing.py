@@ -17,6 +17,8 @@ fig = plt.figure()
 fig.set_dpi(100)
 fig.set_size_inches(7, 6.5)
 ax = plt.axes(xlim=(0, 1), ylim=(0, 1))
+ax.set_xlabel("Horizontal")
+ax.set_ylabel("Vertical")
 
 while True:
     # We get a new frame from the webcam
@@ -70,7 +72,12 @@ while True:
                 Screen = gaze.Screen_coords()
                 print(Screen)
                 polygon = plt.Polygon(Screen)
+                n = [1,2,3,4]
                 xs,ys = zip(*Screen)
+                print(xs)
+                print(ys)
+                for i, txt in enumerate(n):
+                    ax.annotate(txt, (xs[i], ys[i]))
                 plt.plot(xs,ys,'o',color='red')
                 ax.add_patch(polygon)
                 plt.show()
