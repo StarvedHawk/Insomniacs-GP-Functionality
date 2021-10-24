@@ -146,6 +146,8 @@ class GazeTracking(object):
                 h = self.horizontal_ratio()
             if v > self.screen_right_top[1]:
                 v = self.screen_right_top[1]
+            if v == 0:
+                v = self.vertical_ratio()
         self.screen_right_top = [h, v]
 
     def save_Bot_Right(self): #2
@@ -191,11 +193,11 @@ class GazeTracking(object):
             v = self.vertical_ratio()
             self.initialized_Screen = False
         else:
-            if h > self.screen_left_bot[0]:
+            if h < self.screen_left_bot[0]:
                 h = self.screen_left_bot[0]
             if h == 0:
                 h = self.horizontal_ratio()
-            if v > self.screen_left_bot[1]:
+            if v < self.screen_left_bot[1]:
                 v = self.screen_left_bot[1]
             if v == 0:
                 v = self.vertical_ratio()
