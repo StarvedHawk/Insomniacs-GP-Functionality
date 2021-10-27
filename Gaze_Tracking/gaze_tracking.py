@@ -95,12 +95,12 @@ class GazeTracking(object):
             return result
 
     def normalised_hor_ratio(self):
-        h = self.horizontal_ratio()
-        return 1-h
+        h = 1 - self.horizontal_ratio()
+        return h
 
     def normalised_ver_ratio(self):
-        v = self.vertical_ratio()
-        return 1-v
+        v = 1 - self.vertical_ratio()
+        return v
 
     def vertical_ratio(self):
         """Returns a number between 0.0 and 1.0 that indicates the
@@ -217,9 +217,9 @@ class GazeTracking(object):
 
     def Gaze_coords(self):
         #flipping the co-ords and returning as a 1,2 array
-        h = self.horizontal_ratio()
-        v = self.vertical_ratio()
-        return [1-h,1-v]
+        h = self.normalised_hor_ratio()
+        v = self.normalised_ver_ratio()
+        return [h,v]
 
     def annotated_frame(self):
         """Returns the main frame with pupils highlighted"""

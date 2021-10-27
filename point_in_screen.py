@@ -1,6 +1,7 @@
 from itertools import islice, cycle
 
 from tqdm import tqdm
+import sys
 import cv2
 import numpy as np
 from sklearn import cluster, datasets
@@ -46,14 +47,14 @@ points = np.array([[0.5100, 0.5100],
 
 np.random.seed(0)
 
-n_samples = 1500
+n_samples = 300
 
 #Generating random datasets
 noisy_circles = datasets.make_circles(n_samples=n_samples, factor=.5,
                                       noise=.08)
 noisy_moons = datasets.make_moons(n_samples=n_samples, noise=.08)
 
-eps = 0.15
+eps = 0.22
 
 #Joining the datasets
 datasets = [
@@ -80,6 +81,8 @@ n_clusters=len(set(labels))-(1 if -1 in labels else 0)
 #print(n_clusters)
 #print(X)
 label_iter = 0
+#print(sys.getsizeof(X))
+#print(sys.getsizeof(X[0]))
 
 for _,label in tqdm(enumerate(labels),desc="Drawing_Clusters",total=len(labels)):
     #print(label)
@@ -87,9 +90,30 @@ for _,label in tqdm(enumerate(labels),desc="Drawing_Clusters",total=len(labels))
     #print(len(X))
     #print(len(labels))
     y_pred = dbscan.labels_.astype(np.int)
-    colors = np.array(list(islice(cycle(['#FE4A49', '#2AB7CA',"#A1C38C","#666699","#2F847C"]), 3)))
+    colors = np.array(list(islice
+                           (cycle
+                                  (["#FE4A49",
+                                    "#2AB7CA",
+                                    "#A1C38C",
+                                    "#666699",
+                                    "#efe464",
+                                    "#b24c37",
+                                    "#432eb7",
+                                    "#3c8608",
+                                    "#d2c815",
+                                    "#d1aa99",
+                                    "#09d788",
+                                    "#3c028f",
+                                    "#27fa97",
+                                    "#9764c5",
+                                    "#09c8f1",
+                                    "#034d24",
+                                    "#84e332",
+                                    "#a7cd76",
+                                    "#6d73b6",
+                                    "#2F847C"]), n_clusters+1)))
     # add black color for outliers (if any)
     colors = np.append(colors, ["#000000"])
-    plt.scatter(X[:, 0], X[:, 1], s=10, color=colors[y_pred])
+    plt.scatter(X[:, 0], X[:, 1], s=1, color=colors[y_pred])
     label_iter += 1
 plt.show()

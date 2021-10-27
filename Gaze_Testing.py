@@ -26,6 +26,7 @@ Wait_Length = 1
 #Dynamic Values
 Gaze_points = np.zeros((DATA_POINT_LIMIT,2))
 
+#Making the pyplot fig
 fig = plt.figure()
 fig.set_dpi(100)
 fig.set_size_inches(7, 6.5)
