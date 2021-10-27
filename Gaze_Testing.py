@@ -4,14 +4,27 @@ Check the README.md for complete documentation.
 """
 
 import cv2
+import numpy as np
+
 from Gaze_Tracking import GazeTracking
 from matplotlib import pyplot as plt
+from matplotlib import path
+
 
 gaze = GazeTracking()
 webcam = cv2.VideoCapture(0)
 
+
+#Config Values
 Screen_Captured = False
 Log_Timer = 0
+DATA_POINT_LIMIT = 300
+EPSILON = 0.2
+MIN_NUM_OF_POINTS = 3
+Wait_Length = 1
+
+#Dynamic Values
+Gaze_points = np.zeros((DATA_POINT_LIMIT,2))
 
 fig = plt.figure()
 fig.set_dpi(100)
@@ -66,7 +79,7 @@ while True:
             if 350 > Log_Timer >= 300:
                 gaze.save_Top_Left()
                 cv2.putText(frame, "Logging...", (30, 50), cv2.FONT_HERSHEY_DUPLEX, 1.6, (77, 77, 209), 1)
-            if  400 > Log_Timer >= 350:
+            if 400 > Log_Timer >= 350:
                 cv2.putText(frame, "Done", (200 , 200), cv2.FONT_HERSHEY_DUPLEX, 1.6, (77, 77, 209), 1)
             if Log_Timer == 400:
                 Screen = gaze.Screen_coords()
@@ -86,10 +99,9 @@ while True:
         else:
             cv2.putText(frame, "Lost eyes", (200, 200), cv2.FONT_HERSHEY_DUPLEX, 1.6, (77, 77, 209), 1)
 
-
     cv2.imshow("Demo", frame)
 
-    if cv2.waitKey(1) == 27:
+    if cv2.waitKey(Wait_Length) & 0xFF == ord('q'):
         break
 
 webcam.release()

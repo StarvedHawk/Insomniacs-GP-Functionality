@@ -160,13 +160,6 @@ width = right-left
 
 Mouth_crop_points = [left,right,top,bottom]
 
-# cv2.circle(img, (top, left), 1, (0, 0, 0), -1)
-# cv2.circle(img, (top, right), 1, (0, 0, 0), -1)
-# cv2.circle(img, (bottom, left), 1, (0, 0, 0), -1)
-# cv2.circle(img, (bottom, right), 1, (0, 0, 0), -1)
-# print("height",height,"width",width)
-# print("Crop Points", Mouth_crop_points)
-
 Adjusted = img[left:right, top:bottom]
 #print("height_ratio",height_ratio,"width_ratio",width_ratio)
 

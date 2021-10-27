@@ -148,7 +148,7 @@ class GazeTracking(object):
                 v = self.screen_right_top[1]
             if v == 0:
                 v = self.vertical_ratio()
-        self.screen_right_top = [h, v]
+        self.screen_right_top = [1-h, 1-v] #Flipping Coordinates before saving
 
     def save_Bot_Right(self): #2
         h = self.horizontal_ratio()
@@ -166,7 +166,7 @@ class GazeTracking(object):
                 v = self.screen_right_bot[1]
             if v == 0:
                 v = self.vertical_ratio()
-        self.screen_right_bot = [h, v]
+        self.screen_right_bot = [1-h, 1-v] #Flipping Coordinates before saving
     def save_Top_Left(self): #4
         h = self.horizontal_ratio()
         v = self.vertical_ratio()
@@ -183,7 +183,7 @@ class GazeTracking(object):
                 v = self.screen_left_top[1]
             if v == 0:
                 v = self.vertical_ratio()
-        self.screen_left_top = [h, v]
+        self.screen_left_top = [1-h, 1-v] #Flipping Coordinates before saving
 
     def save_Bot_Left(self): #3
         h = self.horizontal_ratio()
@@ -201,7 +201,7 @@ class GazeTracking(object):
                 v = self.screen_left_bot[1]
             if v == 0:
                 v = self.vertical_ratio()
-        self.screen_left_bot = [h, v]
+        self.screen_left_bot = [1-h, 1-v] #Flipping Coordinates before saving
     def Screen_coords(self):
         Screen = [self.screen_right_top,self.screen_right_bot,self.screen_left_bot,self.screen_left_top]
         return Screen

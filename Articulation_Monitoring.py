@@ -17,7 +17,7 @@ import Articulation_Calc_Functions as ADC_F
 LIST_SIZE = 20
 THRESHOLD = 50
 MAX_DANGER = 30
-ERROR_RANGE = 50
+ERROR_RANGE = 100
 CLOSE_THRESHOLD = 7
 DANGER_MOD_CLOSED_CONSTANT = 3 #AMOUNT DANGER VALUE IS DECREASED BY FOR A CONSTANT MOUTH AREA WHEN CLOSED
 DANGER_MOD_OPEN_CONSTANT = 2 #AMOUNT DANGER VALUE IS DECREASED BY FOR A CONSTANT MOUTH AREA WHEN OPEN
@@ -45,8 +45,7 @@ mouth = np.zeros((8, 2))
 
 #Models
 face_detector = dlib.get_frontal_face_detector()  # detector
-landmark_detector = dlib.shape_predictor(
-    r"C:\Users\faisa\PycharmProjects\OpenCVPython\Resources\shape_predictor_68_face_landmarks.dat")  # predictor
+landmark_detector = dlib.shape_predictor(r"Resources/shape_predictor_68_face_landmarks.dat")  # predictor
 
 CONFIG_PATH = r"C:\Users\faisa\PycharmProjects\RealTimeObjectDetection\Tensorflow\workspace\models\my_ssd_mobnet\pipeline.config"
 WORKSPACE_PATH = 'Tensorflow/workspace'
@@ -188,8 +187,10 @@ while True:
                         Danger_Check = True
                         if Phonemes_Detected > PHONEME_THRESHOLD:
                             Danger_Value = Danger_Value + DANGER_MOD_PHNM_DETECTED
-                            if Danger_Value > MAX_DANGER:
-                                Danger_Value = MAX_DANGER
+                    if Danger_Value > MAX_DANGER:
+                        Danger_Value = MAX_DANGER
+                    if Danger_Value < 0:
+                        Danger_Value = 0
                     if Danger_Check and Danger_Value > 25:
                         print("DANGER LEVEL : ", Danger_Value, " : HIGH")
                     if Danger_Check and 25 >= Danger_Value > 15:
