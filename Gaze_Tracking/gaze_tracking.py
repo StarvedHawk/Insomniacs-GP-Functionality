@@ -18,6 +18,7 @@ class GazeTracking(object):
         self.frame = None
         self.eye_left = None
         self.eye_right = None
+        #Noralized
         self.screen_right_top = None
         self.screen_right_bot = None
         self.screen_left_top = None
@@ -92,6 +93,14 @@ class GazeTracking(object):
             result = (pupil_left + pupil_right) / 2
             result = round(result, 4)
             return result
+
+    def normalised_hor_ratio(self):
+        h = self.horizontal_ratio()
+        return 1-h
+
+    def normalised_ver_ratio(self):
+        v = self.vertical_ratio()
+        return 1-v
 
     def vertical_ratio(self):
         """Returns a number between 0.0 and 1.0 that indicates the
