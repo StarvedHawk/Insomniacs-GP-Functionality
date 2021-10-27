@@ -5,6 +5,8 @@ from Gaze_Tracking import GazeTracking
 from matplotlib import pyplot as plt
 from matplotlib import path
 
+Screen = [[0.5132, 0.5131], [0.5468, 0.2821], [0.23140000000000005, 0.2167], [0.2136, 0.5]]
+
 first = -3
 size  = (3-first)/100
 xv,yv = np.meshgrid(np.linspace(-3,3,100),np.linspace(-3,3,100))

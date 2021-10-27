@@ -206,6 +206,12 @@ class GazeTracking(object):
         Screen = [self.screen_right_top,self.screen_right_bot,self.screen_left_bot,self.screen_left_top]
         return Screen
 
+    def Gaze_coords(self):
+        #flipping the co-ords and returning as a 1,2 array
+        h = self.horizontal_ratio()
+        v = self.vertical_ratio()
+        return [1-h,1-v]
+
     def annotated_frame(self):
         """Returns the main frame with pupils highlighted"""
         frame = self.frame.copy()
