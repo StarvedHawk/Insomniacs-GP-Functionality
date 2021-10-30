@@ -3,7 +3,7 @@ import cv2
 
 face_detector = dlib.get_frontal_face_detector()
 landmark_detector = dlib.shape_predictor("Resources/shape_predictor_68_face_landmarks.dat")
-img = cv2.imread("Resources/face.jpg")[:,:,::-1]
+img = cv2.imread("../Resources/face.jpg")[:, :, ::-1]
 img = cv2.resize(img,((int)(img.shape[1]/2),(int)(img.shape[0]/2)))
 img = cv2.cvtColor(img,cv2.COLOR_BGRA2RGB)                         #Bug in opencv causes a color swap
                                                                     #so u need to swap colors twice

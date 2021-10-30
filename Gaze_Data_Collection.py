@@ -20,15 +20,15 @@ from matplotlib import path
 from sklearn.preprocessing import StandardScaler
 
 #STATIC
-DATA_POINT_LIMIT = 50 #400
+DATA_POINT_LIMIT = 200 #400
 #WINDOW_SIZE = 200
 Wait_Length = 1
 CAPTURE_SPAN = 5            #Number of frames between data point captures
-eps = 0.22
+eps = 0.02
 MIN_SAMPLES = 4
 
 #DYNAMIC
-Gaze_points = np.zeros((DATA_POINT_LIMIT,2))
+Gaze_points = np.zeros((DATA_POINT_LIMIT + 4,2))
 Capture_Span_Iter = 0       #Iterator between Frames
 Screen_Captured = True
 gaze_point_iter = 0
@@ -45,8 +45,13 @@ fig.set_size_inches(9, 7.5)
 ax = plt.axes(xlim=(0, 1), ylim=(0, 1))
 ax.set_xlabel("Horizontal")
 ax.set_ylabel("Vertical")
-plt.xticks(())
-plt.yticks(())
+#ax.set_xticklabels([-2.5,-2,-1.5,-1,-0.5,0,0.5,1,1.5,2,2.5])
+#ax.set_xticklabels(['0','0.1','0.2','0.3','0.4','0.5','0.6','0.7','0.8','0.9','1'])
+#ax.set_yticklabels([-2.5,-2,-1.5,-1,-0.5,0,0.5,1,1.5,2,2.5])
+#ax.set_yticklabels(['0','0.1','0.2','0.3','0.4','0.5','0.6','0.7','0.8','0.9','1'])
+#plt.xticks([0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1])
+#plt.yticks(())
+#plt.xticks(())
 
 #Model
 dbscan = DBSCAN(eps=eps,min_samples=MIN_SAMPLES)
@@ -54,6 +59,15 @@ dbscan = DBSCAN(eps=eps,min_samples=MIN_SAMPLES)
 #TEMP
 #Screen Co-ords taken for testing
 Screen = [[0.5132, 0.5131], [0.5468, 0.2821], [0.23140000000000005, 0.2167], [0.2136, 0.5]]
+
+Gaze_points[200] = (0,0)
+Gaze_points[201] = (0,1)
+Gaze_points[202] = (1,0)
+Gaze_points[203] = (1,1)
+
+polygon = plt.Polygon(Screen)
+n = [1,2,3,4]
+ax.add_patch(polygon)
 
 while True:
     _, frame = webcam.read()
@@ -85,6 +99,7 @@ while True:
             #cv2.putText(frame, "Vertical: " + str(Normalised_Eyes[1]), (30, 465), cv2.FONT_HERSHEY_DUPLEX, 0.5,(77, 77, 209), 1)
 
             #Function to save data_point
+
             if Capture_Span_Iter == CAPTURE_SPAN - 1:
                 Gaze_points[gaze_point_iter] = gaze.Gaze_coords()
                 if Gaze_points[gaze_point_iter][0] < 0 or Gaze_points[gaze_point_iter][0] > 1:
@@ -93,11 +108,11 @@ while True:
                     repeat_collection = True
                 if repeat_collection:
                     gaze_point_iter -= 1
-                    CAPTURE_SPAN -= 1
+                    Capture_Span_Iter -= 1
                     continue
                 if gaze_point_iter + 1 == DATA_POINT_LIMIT:
                     print(Gaze_points)
-                    Gaze_points = StandardScaler().fit_transform(Gaze_points)
+                    #Gaze_points = StandardScaler().fit_transform(Gaze_points)
                     dbscan = DBSCAN(eps=eps, min_samples=MIN_SAMPLES)
                     model = dbscan.fit(Gaze_points)
                     labels = model.labels_
@@ -108,10 +123,6 @@ while True:
                     label_iter = 0
 
                     for _, label in tqdm(enumerate(labels), desc="Drawing_Clusters", total=len(labels)):
-                        # print(label)
-                        # print(labels[0])
-                        # print(len(X))
-                        # print(len(labels))
                         y_pred = dbscan.labels_.astype(np.int)
                         colors = np.array(list(islice
                                                (cycle
@@ -137,12 +148,10 @@ while True:
                                                   "#2F847C"]), n_clusters + 1)))
                         # add black color for outliers (if any)
                         colors = np.append(colors, ["#000000"])
-                        print(plt.scatter(Gaze_points[:, 0], Gaze_points[:, 1], s=20, color=colors[y_pred]))
+                        plt.scatter(Gaze_points[:, 0], Gaze_points[:, 1], s=1, color=colors[y_pred])
                         #print(plt.scatter(Gaze_points[:, 0], Gaze_points[:, 1], s=20, color="#000000"))
                         label_iter += 1
-                        print(label_iter)
                     plt.show()
-                    print(Gaze_points)
                 gaze_point_iter = (gaze_point_iter + 1 ) % DATA_POINT_LIMIT
             Capture_Span_Iter = (Capture_Span_Iter + 1) % CAPTURE_SPAN
 
