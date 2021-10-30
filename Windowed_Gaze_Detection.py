@@ -20,8 +20,8 @@ from matplotlib import path
 from sklearn.preprocessing import StandardScaler
 
 #STATIC
-DATA_POINT_LIMIT = 100 #Number of Data Points per window
-WINDOW_SIZE = 50
+DATA_POINT_LIMIT = 400 #Number of Data Points per window
+WINDOW_SIZE = 200
 NUMBER_OF_WINDOWS = DATA_POINT_LIMIT / WINDOW_SIZE
 Wait_Length = 1
 CAPTURE_SPAN = 5            #Number of frames between data point captures
