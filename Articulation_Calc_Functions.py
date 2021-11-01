@@ -36,8 +36,6 @@ def crop_mouth(img, face_detector, landmark_detector):
                 bottom = x
 
             landmark_tuple.append((x, y))
-            # cv2.circle(img, (x, y), 3, (255, 0, 0), -1)
-            # cv2.circle(img, (x, y), 2, (0, 100, 255), -1)
 
     Padding = 5
 
@@ -45,16 +43,6 @@ def crop_mouth(img, face_detector, landmark_detector):
     left = left - Padding
     right = right + Padding
     bottom = bottom + Padding
-
-    # cv2.circle(img, (top, left), 1, (130, 130, 0), -1)
-    # cv2.circle(img, (top, right), 1, (130, 130, 0), -1)
-    # cv2.circle(img, (bottom, left), 1, (130, 130, 0), -1)
-    # cv2.circle(img, (bottom, right), 1, (130, 130, 0), -1)
-
-    # top = 405
-    # left = 405
-    # right = 377
-    # bottom = 377
 
     MOUTH_WIDTH = 50
     MOUTH_HEIGHT = 100
@@ -65,16 +53,12 @@ def crop_mouth(img, face_detector, landmark_detector):
     height = bottom - top
     width = right - left
 
-    # print("height", height, "width", width)
-
-    # cropped = img[left:right, top:bottom]
 
     if MOUTH_HEIGHT < height or MOUTH_WIDTH < width:
         current_mouth_height = height
         current_mouth_width = width
         total_height_pad = 0
         total_width_pad = 0
-        # print("height ratio : ", height_ratio, "width ratio : ", width_ratio)
         if current_mouth_height % 10 > 0:
             total_height_pad += 10 - current_mouth_height % 10
             current_mouth_height += total_height_pad
@@ -83,8 +67,6 @@ def crop_mouth(img, face_detector, landmark_detector):
             current_mouth_width += total_width_pad
         height_ratio = current_mouth_height / 10
         width_ratio = current_mouth_width / 5
-        # print("height : ", current_mouth_height, "width : ", current_mouth_width)
-        # print("height ratio : ", height_ratio, "width ratio : ", width_ratio)
         if height_ratio > width_ratio:
             total_width_pad = (height_ratio - width_ratio) * 5
             current_mouth_width += total_width_pad
@@ -93,8 +75,6 @@ def crop_mouth(img, face_detector, landmark_detector):
             current_mouth_height += total_height_pad
         height_ratio = current_mouth_height / 10
         width_ratio = current_mouth_width / 5
-        # print("height : ", current_mouth_height, "width : ", current_mouth_width)
-        # print("height ratio : ", height_ratio, "width ratio : ", width_ratio)
 
         total_width_pad = current_mouth_width - width
         total_height_pad = current_mouth_height - height
@@ -115,46 +95,28 @@ def crop_mouth(img, face_detector, landmark_detector):
         resize_width = current_mouth_width / width_ratio * 10
         resize_bool = 1
 
-        # print("height : ", current_mouth_height, "width : ", current_mouth_width)
-        # print("Real_height : ", height, "Real_width : ", width)
-        # print("resize height : ", resize_height, "resize width : ", resize_width)
-        # print("height ratio : ", height_ratio, "width ratio : ", width_ratio)
-
     if MOUTH_HEIGHT > height and resize_bool == 0:
         height_difference = MOUTH_HEIGHT - height
         top_height_pad = math.ceil(height_difference / 2)
         bot_height_pad = math.floor(height_difference / 2)
         bottom = bottom + bot_height_pad
         top = top - top_height_pad
-        # print("top", top,"bottom", bottom)
     if MOUTH_WIDTH > width and resize_bool == 0:
         width_difference = MOUTH_WIDTH - width
         Left_width_pad = math.ceil(width_difference / 2)
         right_width_pad = math.floor(width_difference / 2)
         right = right + right_width_pad
         left = left - Left_width_pad
-        # print("left", left, "right", right)
-
     height = bottom - top
     width = right - left
-
-    # cv2.circle(img, (top, left), 1, (0, 0, 0), -1)
-    # cv2.circle(img, (top, right), 1, (0, 0, 0), -1)
-    # cv2.circle(img, (bottom, left), 1, (0, 0, 0), -1)
-    # cv2.circle(img, (bottom, right), 1, (0, 0, 0), -1)
-    # print("height",height,"width",width)
-    # print("Crop Points", Mouth_crop_points)
-
     Adjusted = img[left:right, top:bottom]
-    # print("height_ratio",height_ratio,"width_ratio",width_ratio)
 
     if resize_bool != 0:
-        # print("Adjusted[1]",Adjusted.shape[1],"Adjusted[0]",Adjusted.shape[0])
-        # print("Adjusted[1]", Adjusted.shape[1]/height_ratio*10, "Adjusted[0]", Adjusted.shape[0]/width_ratio*10)
+
         Aspect_param_1 = Adjusted.shape[1] / height_ratio * 10
         Aspect_param_2 = Adjusted.shape[0] / width_ratio * 10
         resized = cv2.resize(Adjusted, ((int)(Aspect_param_1), (int)(Aspect_param_2)))
-        # print("resized[1]", resized.shape[1], "resized[0]", resized.shape[0])
+
         height = resized.shape[1]
         width = resized.shape[0]
     if resize_bool != 0:
@@ -254,9 +216,9 @@ def calculate_area_of_mouth(pt):
     pts_passed[3] = pt[6]
     # calling the function to calculate the area of a Quadrangle
     sections[2] = area_of_Quadrangle(pts_passed)
-    print(sections)
+    #print(sections)
     total_area = sections[0]+sections[1]+sections[2]+sections[3]
-    print("Total Area :",total_area)
+    #print("Total Area :",total_area)
     return total_area
 
 def area_of_triangle(pts):

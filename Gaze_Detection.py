@@ -1,19 +1,8 @@
-import cv2
-import numpy as np
-
-from Gaze_Tracking import GazeTracking
-from matplotlib import pyplot as plt
-from matplotlib import path
 from itertools import islice, cycle
-
 from tqdm import tqdm
-import sys
 import cv2
 import numpy as np
-from sklearn import cluster, datasets
 from sklearn.cluster import DBSCAN
-from sklearn import metrics
-
 from Gaze_Tracking import GazeTracking
 from matplotlib import pyplot as plt
 from matplotlib import path
@@ -66,13 +55,14 @@ plt.scatter(Boundaries[1][0], Boundaries[1][1], s=10,marker='+', color="#ff0000"
 plt.scatter(Boundaries[2][0], Boundaries[2][1], s=10,marker='+', color="#ff0000")
 plt.scatter(Boundaries[3][0], Boundaries[3][1], s=10,marker='+', color="#ff0000")
 
+p = path.Path([(0.5132, 0.5131), (0.5468, 0.2821), (0.23140000000000005, 0.2167), (0.2136, 0.5)])
 
 #polygon = plt.Polygon(Screen)
 #n = [1,2,3,4]
 #ax.add_patch(polygon)
 
 while True:
-    _, frame = webcam.read()
+    ret, frame = webcam.read()
     # We send this frame to GazeTracking to analyze it
     gaze.refresh(frame)
     frame = gaze.annotated_frame()
@@ -117,8 +107,6 @@ while True:
                         Capture_Span_Iter -= 1
                         continue
                     if gaze_point_iter + 1 == DATA_POINT_LIMIT:
-                        #print(Gaze_points)
-                        #Gaze_points = StandardScaler().fit_transform(Gaze_points)
                         dbscan = DBSCAN(eps=eps, min_samples=MIN_SAMPLES)
                         model = dbscan.fit(Gaze_points)
                         labels = model.labels_
@@ -128,36 +116,20 @@ while True:
 
                         label_iter = 0
 
-                        for _, label in tqdm(enumerate(labels), desc="Drawing_Clusters", total=len(labels)):
-                            y_pred = dbscan.labels_.astype(np.int)
-                            colors = np.array(list(islice
-                                                   (cycle
-                                                    (["#FE4A49",
-                                                      "#2AB7CA",
-                                                      "#A1C38C",
-                                                      "#666699",
-                                                      "#efe464",
-                                                      "#b24c37",
-                                                      "#432eb7",
-                                                      "#3c8608",
-                                                      "#d2c815",
-                                                      "#d1aa99",
-                                                      "#09d788",
-                                                      "#3c028f",
-                                                      "#27fa97",
-                                                      "#9764c5",
-                                                      "#09c8f1",
-                                                      "#034d24",
-                                                      "#84e332",
-                                                      "#a7cd76",
-                                                      "#6d73b6",
-                                                      "#2F847C"]), n_clusters + 1)))
-                            # add black color for outliers (if any)
-                            colors = np.append(colors, ["#000000"])
-                            plt.scatter(Gaze_points[:, 0], Gaze_points[:, 1], s=5, color=colors[y_pred])
-                            #print(plt.scatter(Gaze_points[:, 0], Gaze_points[:, 1], s=20, color="#000000"))
-                            label_iter += 1
-                        plt.show()
+                        print("Number of clusters : ", n_clusters)
+
+                        for i in range(0, n_clusters):
+                            clusters = Gaze_points[labels == i]  # assign cluster points to array
+                            points = np.array(clusters)
+                            bool_array = p.contains_points(points)
+                            countTrue = np.count_nonzero(bool_array)
+                            arrayLength = np.size(bool_array)
+                            checkPercentage = (countTrue / arrayLength) * 100
+                            if checkPercentage > 90:
+                                print("Student is looking at screen with ", round(checkPercentage, 2), "% certainity")
+                            else:
+                                print("Student is looking off screen with ", round(100 - checkPercentage, 2),"% certainity")
+                                break
                     gaze_point_iter = (gaze_point_iter + 1 ) % DATA_POINT_LIMIT
                 Capture_Span_Iter = (Capture_Span_Iter + 1) % CAPTURE_SPAN
             else:
@@ -191,35 +163,18 @@ while True:
 
                         label_iter = 0
 
-                        for _, label in tqdm(enumerate(labels), desc="Drawing_Clusters", total=len(labels)):
-                            y_pred = dbscan.labels_.astype(np.int)
-                            colors = np.array(list(islice
-                                                   (cycle
-                                                    (["#FE4A49",
-                                                      "#2AB7CA",
-                                                      "#A1C38C",
-                                                      "#666699",
-                                                      "#efe464",
-                                                      "#b24c37",
-                                                      "#432eb7",
-                                                      "#3c8608",
-                                                      "#d2c815",
-                                                      "#d1aa99",
-                                                      "#09d788",
-                                                      "#3c028f",
-                                                      "#27fa97",
-                                                      "#9764c5",
-                                                      "#09c8f1",
-                                                      "#034d24",
-                                                      "#84e332",
-                                                      "#a7cd76",
-                                                      "#6d73b6",
-                                                      "#2F847C"]), n_clusters + 1)))
-                            # add black color for outliers (if any)
-                            colors = np.append(colors, ["#000000"])
-                            plt.scatter(Gaze_points[:, 0], Gaze_points[:, 1], s=5, color=colors[y_pred])
-                            label_iter += 1
-                        plt.show()
+                        for i in range(0,n_clusters):
+                            clusters = Gaze_points[labels == i]  # assign cluster points to array
+                            points = np.array(clusters)
+                            bool_array = p.contains_points(points)
+                            countTrue = np.count_nonzero(bool_array)
+                            arrayLength = np.size(bool_array)
+                            checkPercentage = (countTrue / arrayLength) * 100
+                            if checkPercentage > 90:
+                                print("Student is looking at screen with ",round(checkPercentage,2), "% certainity")
+                            else:
+                                print("Student is looking off screen with ",round(100 - checkPercentage,2), "% certainity")
+                                break
                     gaze_point_iter = (gaze_point_iter + 1 ) % WINDOW_SIZE
                 Capture_Span_Iter = (Capture_Span_Iter + 1) % CAPTURE_SPAN
 
@@ -228,4 +183,6 @@ while True:
     cv2.imshow("Demo", frame)
 
     if cv2.waitKey(Wait_Length) & 0xFF == ord('q'):
+        webcam.release()
+        cv2.destroyAllWindows()
         break
