@@ -9,6 +9,7 @@ from matplotlib import pyplot as plt
 from matplotlib import path
 from sklearn.preprocessing import StandardScaler
 import math
+import datetime
 import cv2
 import numpy as np
 import dlib
@@ -24,8 +25,8 @@ import Articulation_Calc_Functions as ADC_F
 
 #GAZE DETECTION CONFIG
 #STATIC
-DATA_POINT_LIMIT = 400 #Number of Data Points per window
-WINDOW_SIZE = 200
+DATA_POINT_LIMIT = 100 #Number of Data Points per window
+WINDOW_SIZE = 50
 NUMBER_OF_WINDOWS = DATA_POINT_LIMIT / WINDOW_SIZE
 Wait_Length = 1
 CAPTURE_SPAN = 5            #Number of frames between data point captures
@@ -42,18 +43,10 @@ Screen_Captured = True
 gaze_point_iter = 0
 First_Cluster = True       #First Cluster successful
 repeat_collection = False
+GD_Danger_Value = 0
 
 gaze = GazeTracking()
 webcam = cv2.VideoCapture(0)
-
-#Making the pyplot fig
-fig = plt.figure()
-fig.set_dpi(80)
-fig.set_size_inches(9, 7.5)
-ax = plt.axes(xlim=(0, 1), ylim=(0, 1))
-ax.set_xlabel("Horizontal")
-ax.set_ylabel("Vertical")
-
 
 #Model
 dbscan = DBSCAN(eps=eps,min_samples=MIN_SAMPLES)
@@ -61,12 +54,6 @@ dbscan = DBSCAN(eps=eps,min_samples=MIN_SAMPLES)
 #TEMP
 #Screen Co-ords taken for testing
 Screen = [[0.5132, 0.5131], [0.5468, 0.2821], [0.23140000000000005, 0.2167], [0.2136, 0.5]]
-Boundaries = [[0, 0],[0, 1],[1, 0],[1, 1]]
-
-plt.scatter(Boundaries[0][0], Boundaries[0][1], s=10,marker='+', color="#ff0000")
-plt.scatter(Boundaries[1][0], Boundaries[1][1], s=10,marker='+', color="#ff0000")
-plt.scatter(Boundaries[2][0], Boundaries[2][1], s=10,marker='+', color="#ff0000")
-plt.scatter(Boundaries[3][0], Boundaries[3][1], s=10,marker='+', color="#ff0000")
 
 p = path.Path([(0.5132, 0.5131), (0.5468, 0.2821), (0.23140000000000005, 0.2167), (0.2136, 0.5)])
 
@@ -131,6 +118,7 @@ MD_category_index = label_map_util.create_category_index_from_labelmap(MD_ANNOTA
 MD_ckpt = tf.compat.v2.train.Checkpoint(model=MD_detection_model)
 MD_ckpt.restore(os.path.join(MD_CHECKPOINT_PATH, 'ckpt-25')).expect_partial()
 
+Current_Time_Stamp = datetime.datetime.now()
 
 @tf.function
 def detect_fn(image):
@@ -149,6 +137,7 @@ MD_height = int(webcam.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
 while True:
     ret, frame = webcam.read()
+    Current_Time_Stamp = datetime.datetime.now()
     # GAZE TRACKING REAL-TIME
     gaze.refresh(frame)
     frame = gaze.annotated_frame()
@@ -213,12 +202,17 @@ while True:
                             arrayLength = np.size(bool_array)
                             checkPercentage = (countTrue / arrayLength) * 100
                             if checkPercentage > 90:
+                                print(Current_Time_Stamp)
                                 print("Student is looking at screen with ", round(checkPercentage, 2), "% certainity",i)
+                                GD_Danger_Value = round((100 - checkPercentage) / 100 * 30)
                             else:
+                                print(Current_Time_Stamp)
                                 print("Student is looking off screen with ", round(100 - checkPercentage, 2),"% certainity",i)
+                                GD_Danger_Value = round((100 - checkPercentage) / 100 * 30)
+                                print(GD_Danger_Value)
                                 #break
                             print("-----------------------------------------------\n")
-                    gaze_point_iter = (gaze_point_iter + 1 ) % DATA_POINT_LIMIT
+                    gaze_point_iter = (gaze_point_iter + 1) % DATA_POINT_LIMIT
             else:
                 if Capture_Span_Iter == CAPTURE_SPAN - 1:
                     Temp_Window[gaze_point_iter] = gaze.Gaze_coords()
@@ -372,10 +366,13 @@ while True:
                     if MD_Danger_Value < 0:
                         MD_Danger_Value = 0
                     if MD_Danger_Check and MD_Danger_Value > 25:
+                        print(Current_Time_Stamp)
                         print("DANGER LEVEL : ", MD_Danger_Value, " : HIGH")
                     if MD_Danger_Check and 25 >= MD_Danger_Value > 15:
+                        print(Current_Time_Stamp)
                         print("DANGER LEVEL : ", MD_Danger_Value, " : MEDIUM")
                     if MD_Danger_Check and 15 >= MD_Danger_Value > 10:
+                        print(Current_Time_Stamp)
                         print("DANGER LEVEL : ", MD_Danger_Value, " : LOW")
                 except:
                     print("No Face")

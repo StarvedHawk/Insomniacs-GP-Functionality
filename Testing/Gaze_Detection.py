@@ -127,9 +127,8 @@ while True:
                             checkPercentage = (countTrue / arrayLength) * 100
                             if checkPercentage > 90:
                                 print("Student is looking at screen with ", round(checkPercentage, 2), "% certainity")
-                            else:
+                            else :
                                 print("Student is looking off screen with ", round(100 - checkPercentage, 2),"% certainity")
-                                break
                     gaze_point_iter = (gaze_point_iter + 1 ) % DATA_POINT_LIMIT
                 Capture_Span_Iter = (Capture_Span_Iter + 1) % CAPTURE_SPAN
             else:
@@ -180,9 +179,12 @@ while True:
 
         else:
             cv2.putText(frame, "Lost eyes", (200, 200), cv2.FONT_HERSHEY_DUPLEX, 1.6, (77, 77, 209), 1)
-    cv2.imshow("Demo", frame)
+    cv2.imshow("Webcam", frame)
 
     if cv2.waitKey(Wait_Length) & 0xFF == ord('q'):
         webcam.release()
         cv2.destroyAllWindows()
         break
+
+
+#TODO

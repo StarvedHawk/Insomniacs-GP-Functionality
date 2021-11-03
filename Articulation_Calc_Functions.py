@@ -216,9 +216,9 @@ def calculate_area_of_mouth(pt):
     pts_passed[3] = pt[6]
     # calling the function to calculate the area of a Quadrangle
     sections[2] = area_of_Quadrangle(pts_passed)
-    #print(sections)
+    print(sections)
     total_area = sections[0]+sections[1]+sections[2]+sections[3]
-    #print("Total Area :",total_area)
+    print("Total Area :",total_area)
     return total_area
 
 def area_of_triangle(pts):
