@@ -18,13 +18,7 @@ webcam = cv2.VideoCapture(0)
 #Config Values
 Screen_Captured = False
 Log_Timer = 0
-DATA_POINT_LIMIT = 300
-EPSILON = 0.2
-MIN_NUM_OF_POINTS = 3
 Wait_Length = 1
-
-#Dynamic Values
-Gaze_points = np.zeros((DATA_POINT_LIMIT,2))
 
 #Making the pyplot fig
 fig = plt.figure()
@@ -41,18 +35,6 @@ while True:
     gaze.refresh(frame)
     frame = gaze.annotated_frame()
     if Screen_Captured:
-        text = ""
-        if gaze.is_blinking():
-            text = "Blinking"
-        elif gaze.is_right():
-            text = "Looking right"
-        elif gaze.is_left():
-            text = "Looking left"
-        elif gaze.is_center():
-            text = "Looking center"
-
-        cv2.putText(frame, text, (30, 400), cv2.FONT_HERSHEY_DUPLEX, 0.7, (98, 98, 242), 2)
-
         left_pupil = gaze.pupil_left_coords()
         right_pupil = gaze.pupil_right_coords()
         cv2.putText(frame, "Left pupil:  " + str(left_pupil), (30, 430), cv2.FONT_HERSHEY_DUPLEX, 0.5, (77, 77, 209), 1)

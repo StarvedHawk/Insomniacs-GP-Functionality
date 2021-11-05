@@ -42,11 +42,13 @@ gaze = GazeTracking()
 #Model
 dbscan = DBSCAN(eps=eps,min_samples=MIN_SAMPLES)
 
-#TEMP
+#CONFIG FILE
 #Screen Co-ords taken for testing
+global Screen
 Screen = [[0.5132, 0.5131], [0.5468, 0.2821], [0.23140000000000005, 0.2167], [0.2136, 0.5]]
 
 p = path.Path([(0.5132, 0.5131), (0.5468, 0.2821), (0.23140000000000005, 0.2167), (0.2136, 0.5)])
+Screen_Captured = False
 
 #polygon = plt.Polygon(Screen)
 #n = [1,2,3,4]
@@ -127,6 +129,7 @@ def gen():
     gaze_point_iter = 0
     First_Cluster = True  # First Cluster successful
     repeat_collection = False
+
     GD_Danger_Value = 0
     # Dynamic Values
     MD_List_iterator = 0
@@ -146,6 +149,7 @@ def gen():
     while True:
         ret, frame = webcam.read()
         Current_Time_Stamp = datetime.datetime.now()
+        GD_faces = MD_face_detector(frame, 1)
         # GAZE TRACKING REAL-TIME
         gaze.refresh(frame)
         frame = gaze.annotated_frame()
@@ -401,6 +405,87 @@ def gen():
         os.remove('temp.jpg')
 
 
+def config():
+    #Configuration file
+    Temp_Screen =[[0,0,0,0]]
+    Screen_Captured = False
+    Log_Timer = 0
+    Wait_Length = 1
+    fig = plt.figure()
+    fig.set_dpi(100)
+    fig.set_size_inches(7, 6.5)
+    ax = plt.axes(xlim=(0, 1), ylim=(0, 1))
+    ax.set_xlabel("Horizontal")
+    ax.set_ylabel("Vertical")
+    ax.set_ylabel("Vertical")
+    while True:
+        # We get a new frame from the webcam
+        _, frame = webcam.read()
+        # We send this frame to GazeTracking to analyze it
+        gaze.refresh(frame)
+        frame = gaze.annotated_frame()
+        if Screen_Captured:
+            break
+            left_pupil = gaze.pupil_left_coords()
+            right_pupil = gaze.pupil_right_coords()
+            cv2.putText(frame, "Left pupil:  " + str(left_pupil), (30, 430), cv2.FONT_HERSHEY_DUPLEX, 0.5,
+                        (77, 77, 209), 1)
+            cv2.putText(frame, "Right pupil: " + str(right_pupil), (30, 465), cv2.FONT_HERSHEY_DUPLEX, 0.5,
+                        (77, 77, 209), 1)
+        else:
+            if gaze.pupils_located:
+                if 50 > Log_Timer >= 0:
+                    gaze.initialize_screen()
+                    cv2.putText(frame, "Look at Top Right", (180, 50), cv2.FONT_HERSHEY_DUPLEX, 1.6, (77, 77, 209), 1)
+                if 80 > Log_Timer >= 50:
+                    gaze.save_Top_Right()
+                    cv2.putText(frame, "Logging...", (180, 50), cv2.FONT_HERSHEY_DUPLEX, 1.6, (77, 77, 209), 1)
+                if 130 > Log_Timer >= 80:
+                    cv2.putText(frame, "Look at Bot Right", (180, 465), cv2.FONT_HERSHEY_DUPLEX, 1.6, (77, 77, 209), 1)
+                if 150 > Log_Timer >= 130:
+                    gaze.save_Bot_Right()
+                    cv2.putText(frame, "Logging...", (180, 465), cv2.FONT_HERSHEY_DUPLEX, 1.6, (77, 77, 209), 1)
+                if 200 > Log_Timer >= 150:
+                    cv2.putText(frame, "Look at bot Left", (30, 465), cv2.FONT_HERSHEY_DUPLEX, 1.6, (77, 77, 209), 1)
+                if 250 > Log_Timer >= 200:
+                    gaze.save_Bot_Left()
+                    cv2.putText(frame, "Logging...", (30, 465), cv2.FONT_HERSHEY_DUPLEX, 1.6, (77, 77, 209), 1)
+                if 300 > Log_Timer >= 250:
+                    cv2.putText(frame, "Look at Top Left", (30, 50), cv2.FONT_HERSHEY_DUPLEX, 1.6, (77, 77, 209), 1)
+                if 350 > Log_Timer >= 300:
+                    gaze.save_Top_Left()
+                    cv2.putText(frame, "Logging...", (30, 50), cv2.FONT_HERSHEY_DUPLEX, 1.6, (77, 77, 209), 1)
+                if 400 > Log_Timer >= 350:
+                    cv2.putText(frame, "Done", (200, 200), cv2.FONT_HERSHEY_DUPLEX, 1.6, (77, 77, 209), 1)
+                if Log_Timer == 400:
+                    Temp_Screen = gaze.Screen_coords()
+                    print(Temp_Screen)
+                    polygon = plt.Polygon(Temp_Screen)
+                    n = [1, 2, 3, 4]
+                    xs, ys = zip(*Temp_Screen)
+                    print(xs)
+                    print(ys)
+                    for i, txt in enumerate(n):
+                        ax.annotate(txt, (xs[i], ys[i]))
+                    plt.plot(xs, ys, 'o', color='red')
+                    ax.add_patch(polygon)
+                    #plt.show()
+                    plt.savefig("Plt.jpg")
+                    Screen_Captured = True
+                Log_Timer = Log_Timer + 1
+            else:
+                cv2.putText(frame, "Lost eyes", (200, 200), cv2.FONT_HERSHEY_DUPLEX, 1.6, (77, 77, 209), 1)
+
+        cv2.imwrite('temp.jpg', frame)
+        yield (b'--frame\r\n'b'Content-Type: image/jpeg\r\n\r\n' + open('temp.jpg', 'rb').read() + b'\r\n')
+
+
+        os.remove('temp.jpg')
+    yield (b'--frame\r\n'b'Content-Type: image/jpeg\r\n\r\n' + open('Plt.jpg', 'rb').read() + b'\r\n')
+    os.remove('Plt.jpg')
+    webcam.release()
+    return Temp_Screen
+
 @app.route('/')
 def index():
     """Video streaming"""
@@ -409,7 +494,7 @@ def index():
 @app.route('/video_feed')
 def video_feed():
     """Video streaming route. Put this in the src attribute of an img tag."""
-    return Response(gen(),
+    return Response(config(),
                 mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
