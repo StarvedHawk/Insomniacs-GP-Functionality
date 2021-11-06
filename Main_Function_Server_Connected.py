@@ -30,7 +30,7 @@ from requests.structures import CaseInsensitiveDict
 
 #Requests
 Student_ID = 0
-Exam = "";
+Exam = ""
 
 ##STATS
 #GAZE DETECTION CONFIG
