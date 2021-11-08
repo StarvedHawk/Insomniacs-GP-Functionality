@@ -208,7 +208,7 @@ def gen():
                                 Capture_Span_Iter -= 1
                                 continue
                             if gaze_point_iter + 1 == DATA_POINT_LIMIT:
-                                print("-----------------------------------------------\n")
+                                #print("-----------------------------------------------\n")
                                 dbscan = DBSCAN(eps=eps, min_samples=MIN_SAMPLES)
                                 model = dbscan.fit(Gaze_points)
                                 labels = model.labels_
@@ -218,7 +218,7 @@ def gen():
 
                                 label_iter = 0
                                 Average_Percentage = 0
-                                print("Number of clusters : ", n_clusters)
+                                #print("Number of clusters : ", n_clusters)
                                 for i in range(0, n_clusters):
                                     clusters = Gaze_points[labels == i]  # assign cluster points to array
                                     points = np.array(clusters)
@@ -227,18 +227,18 @@ def gen():
                                     arrayLength = np.size(bool_array)
                                     checkPercentage = (countTrue / arrayLength) * 100
                                     if checkPercentage > 90:
-                                        print(Current_Time_Stamp)
-                                        print("Student is looking at screen with ", round(checkPercentage, 2),"% certainity", i)
+                                        #print(Current_Time_Stamp)
+                                        #print("Student is looking at screen with ", round(checkPercentage, 2),"% certainity", i)
                                         GD_Danger_Value = round((100 - checkPercentage) / 100 * (MD_MAX_DANGER-3))
-                                        print(GD_Danger_Value)
+                                        #print(GD_Danger_Value)
                                         Average_Percentage += checkPercentage
                                     else:
-                                        print(Current_Time_Stamp)
-                                        print("Student is looking off screen with ", round(100 - checkPercentage, 2),"% certainity", i)
+                                        #print(Current_Time_Stamp)
+                                        #print("Student is looking off screen with ", round(100 - checkPercentage, 2),"% certainity", i)
 
                                         GD_Danger_Value = round((100 - checkPercentage) / 100 * (MD_MAX_DANGER-3))
 
-                                        print(GD_Danger_Value)
+                                        #print(GD_Danger_Value)
                                         Average_Percentage += checkPercentage
                                         # break
                                 if n_clusters > 0:
@@ -246,7 +246,7 @@ def gen():
                                     GD_Danger_Value = round((100 - Average_Percentage) / 100 * (MD_MAX_DANGER - 3))
                                     GD_msg = "Student is looking off screen ", round(100 - Average_Percentage,2), "% of the time"
                                     post_to_server(Current_Time_Stamp, GD_msg, DangerLevel=GD_Danger_Value)
-                                print("-----------------------------------------------\n")
+                                #print("-----------------------------------------------\n")
                             gaze_point_iter = (gaze_point_iter + 1) % DATA_POINT_LIMIT
                     else:
                         if Capture_Span_Iter == CAPTURE_SPAN - 1:
@@ -260,7 +260,7 @@ def gen():
                                 Capture_Span_Iter -= 1
                                 continue
                             if gaze_point_iter + 1 == WINDOW_SIZE:
-                                print("-----------------------------------------------\n")
+                                #print("-----------------------------------------------\n")
                                 Window_One = Window_Two  # Cycling the Windows
                                 Window_Two = Temp_Window
                                 Gaze_points = np.concatenate(Window_One, Window_Two)
@@ -282,13 +282,11 @@ def gen():
                                     arrayLength = np.size(bool_array)
                                     checkPercentage = (countTrue / arrayLength) * 100
                                     if checkPercentage > 90:
-                                        print("Student is looking at screen with ", round(checkPercentage, 2),
-                                              "% certainity ", i)
+                                        #print("Student is looking at screen with ", round(checkPercentage, 2),"% certainity ", i)
                                         GD_Danger_Value = round((100 - checkPercentage) / 100 * (MD_MAX_DANGER-3))
                                         Average_Percentage += checkPercentage
                                     else:
-                                        print("Student is looking off screen with ", round(100 - checkPercentage, 2),
-                                              "% certainity", i)
+                                        #print("Student is looking off screen with ", round(100 - checkPercentage, 2),"% certainity", i)
                                         GD_Danger_Value = round((100 - checkPercentage) / 100 * (MD_MAX_DANGER-3))
                                         Average_Percentage += checkPercentage
                                         # break
@@ -298,7 +296,7 @@ def gen():
                                     GD_msg = "Student is looking off screen ", round(100 - Average_Percentage, 2),"% of the time"
                                     post_to_server(Current_Time_Stamp, GD_msg,DangerLevel=GD_Danger_Value)
 
-                                print("-----------------------------------------------\n")
+                                #print("-----------------------------------------------\n")
                             gaze_point_iter = (gaze_point_iter + 1) % WINDOW_SIZE
                     Capture_Span_Iter = (Capture_Span_Iter + 1) % CAPTURE_SPAN
                 else:
@@ -332,7 +330,7 @@ def gen():
                     MD_previous_area = int(MD_previous_entry[0])
                     MD_Checking_Range = range(MD_previous_area - MD_ERROR_RANGE, MD_previous_area + MD_ERROR_RANGE)
                     if MD_total_area < MD_THRESHOLD:
-                        print("Mouth is closed!")
+                        #print("Mouth is closed!")
                         if MD_Danger_Check:
                             if MD_Danger_Value != 0 and MD_total_area in MD_Checking_Range:
                                 MD_Danger_Value = MD_Danger_Value - MD_DANGER_MOD_CLOSED_CONSTANT
@@ -344,7 +342,7 @@ def gen():
                             MD_Danger_Value = 0
                         MD_mouth_area_list[MD_List_iterator] = (MD_total_area, 0)
                     else:
-                        print("Mouth is Open!")
+                        #print("Mouth is Open!")
                         if MD_Danger_Check:
                             if MD_Danger_Value != MD_MAX_DANGER and MD_total_area not in MD_Checking_Range:
                                 MD_Danger_Value = MD_Danger_Value + MD_DANGER_MOD_OPEN_DYNAMIC
@@ -396,7 +394,7 @@ def gen():
                             #                                         image_np_with_detections.shape[0])))
                             if label != "Sil" and label != '':
                                 MD_Phonemes_Detected = MD_Phonemes_Detected + 1
-                                print("Phoneme Detected : ", label)
+                                #print("Phoneme Detected : ", label)
                             # cv2.imshow("object detection", cv2.resize(image_np_with_detections,
                             #                                         (image_np_with_detections.shape[1],
                             #                                         image_np_with_detections.shape[0])))
@@ -424,7 +422,7 @@ def gen():
                             post_to_server(Current_Time_Stamp, "Multiple Faces Detected", DangerLevel=30)
                 else:
                     post_to_server(Current_Time_Stamp, "No Faces Detected", DangerLevel=30)
-                print("-----------------------------------------------")
+                #print("-----------------------------------------------")
             else:
                 break
 
@@ -498,8 +496,8 @@ def config():
                     polygon = plt.Polygon(Temp_Screen)
                     n = [1, 2, 3, 4]
                     xs, ys = zip(*Temp_Screen)
-                    print(xs)
-                    print(ys)
+                    #print(xs)
+                    #print(ys)
                     for i, txt in enumerate(n):
                         ax.annotate(txt, (xs[i], ys[i]))
                     plt.plot(xs, ys, 'o', color='red')
@@ -523,7 +521,7 @@ def config():
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
-        print(Screen_Captured)
+        #print(Screen_Captured)
         if Screen_Captured:
             return redirect(url_for('main'))
     return render_template('Configuration.html')
@@ -558,6 +556,9 @@ def post_to_server(timeStamp,textMessage,DangerLevel):
     global Exam
     url = "http://127.0.0.1:8000/api/TimeLine/"
 
+    Danger_Text = str(DangerLevel)
+    TS_Text = timeStamp.strftime('%Y-%m-%d %H:%M:%S')
+
     headers = CaseInsensitiveDict()
     headers["Accept"] = "application/json"
     headers["Content-Type"] = "application/json"
@@ -565,17 +566,17 @@ def post_to_server(timeStamp,textMessage,DangerLevel):
     data = {}
     data['student'] = Student_ID
     data['CurrentExam'] = Exam
-    data['AItimeStamp'] = timeStamp
+    data['AItimeStamp'] = TS_Text
     data['AItextMessage'] = textMessage
-    data['AIdangerLevel'] = DangerLevel
+    data['AIdangerLevel'] = Danger_Text
 
     print(data)
 
-    try:
-        resp = requests.post(url, headers=headers, data=json.dumps(data))
-        print(resp.status_code)
-    except Exception:
-        print("Connection Error!")
+    # try:
+    #     resp = requests.post(url, headers=headers, data=json.dumps(data))
+    #     print(resp.status_code)
+    # except Exception:
+    #     print("Connection Error!")
 
 
 if __name__ == '__main__':
