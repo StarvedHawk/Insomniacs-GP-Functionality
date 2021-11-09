@@ -1,0 +1,23 @@
+body {
+  background-color: rgb(245, 245, 245);
+  color: rgb(27, 27, 27);
+  font-family: 'Ubuntu', sans-serif; 
+}
+
+    
+.dark-mode {
+  background-color: #002b2b;
+  color: white;
+  
+}
+
+button{
+  cursor: pointer;
+position: fixed;
+border-radius: 40px;
+border-style: none;
+padding: 15px;
+background-color: rgb(97, 0, 0);
+color: white;
+
+}

@@ -303,7 +303,7 @@ def gen():
                     cv2.putText(frame, "Lost eyes", (200, 200), cv2.FONT_HERSHEY_DUPLEX, 1.6, (77, 77, 209), 1)
 
             # MOUTH DETECTION REAL-TIME
-            print("-----------------------------------------------\n")
+            #print("-----------------------------------------------\n")
             if ret == True:
                 MD_faces = MD_face_detector(frame, 1)
                 MD_landmark_tuple = []
@@ -529,7 +529,7 @@ def index():
 @app.route('/main')
 def main():
     """Video streaming"""
-    return render_template('Stream.html')
+    return render_template('StudentRoomDisplay.html')
 
 @app.route('/stream_feed')
 def stream_feed():
@@ -549,7 +549,9 @@ def video_feed():
 
 def update_Screen(Temp_Screen):
     global Screen
+    global p
     Screen = Temp_Screen
+    p = path.Path([Screen[0],Screen[1], Screen[2], Screen[3]])
 
 def post_to_server(timeStamp,textMessage,DangerLevel):
     global Student_ID
@@ -572,11 +574,11 @@ def post_to_server(timeStamp,textMessage,DangerLevel):
 
     print(data)
 
-    # try:
-    #     resp = requests.post(url, headers=headers, data=json.dumps(data))
-    #     print(resp.status_code)
-    # except Exception:
-    #     print("Connection Error!")
+    try:
+        resp = requests.post(url, headers=headers, data=json.dumps(data))
+        print(resp.status_code)
+    except Exception:
+        print("Connection Error!")
 
 
 if __name__ == '__main__':

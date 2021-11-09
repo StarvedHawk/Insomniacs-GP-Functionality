@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+          integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="css/photon.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="css/StudentRoomDisplay.css"/>
+
+    <title>Specula | Student Display</title>
+</head>
+
+<script>
+    const electron = require("electron")
+    window.jQuery = window.$ = require('jquery')
+
+    const {
+        ipcRenderer
+    } = require("electron")
+
+
+</script>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.23.0/axios.js"
+        integrity="sha512-nZmAl1ClAQ0kQ2EH3H6JMQHxNt2K7pGcgxQRoMpYuuuXyPnIGaMKNS7jwZRqBJhfSRYXc2myu+iKFbwhiCL3+w=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous">
+</script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
+        integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous">
+</script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
+        integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous">
+</script>
+
+<style>
+
+    body {
+  background-color: rgb(245, 245, 245);
+  color: rgb(27, 27, 27);
+  font-family: 'Ubuntu', sans-serif;
+}
+.dark-mode {
+  background-color: rgb(34, 0, 0);;
+  color: rgb(255, 255, 255);
+}
+
+#videoCamera{
+  margin: 20px
+}
+
+
+
+.main{
+  margin-top: 20pt;
+  margin-left: auto;
+  margin-right: auto;
+  width:100%;
+  box-shadow: 0px 0px 1px 10px #4600008c;
+color: rgb(38, 50, 56);
+font-weight: 700;
+font-size: 14px;
+background: rgba(136, 126, 126, 0.04);
+border: none;
+border-radius: 20px;
+box-sizing: border-box;
+border: 2px solid rgba(0, 0, 0, 0.02);
+font-family: 'Ubuntu', sans-serif;
+}
+.dark-mode .main{
+  box-shadow: 0px 0px 1px 10px #ee67675b;
+  background: #a800005b;
+}
+h1{
+    margin-top: 50px;
+text-align: center;
+  color: #4d4c4c;
+  font-family: 'Ubuntu', sans-serif;
+  font-weight: bold;
+  font-size: 23px;
+}
+button{
+cursor: pointer;
+border-radius: 40px;
+border-style: none;
+padding: 15px;
+margin: 30px;
+background-color: rgb(97, 0, 0);
+color: white;
+
+}
+.dark-mode button {
+  background-color: rgb(255, 255, 255);
+  color: rgb(97, 0, 0);
+}
+button[type=submit] {
+  cursor: pointer;
+    border-radius: 5em;
+    color: #fff;
+    background-color: rgb(119, 0, 0);
+    padding: 10px 40px 10px 40px;
+    margin-top: 50px;
+    margin-left: 40%;
+    font-family: 'Ubuntu', sans-serif;
+    font-size: 13px;
+    align-items: center;
+  }
+ button[type=submit]:hover {
+      background-color: rgb(0, 43, 33);
+    }
+
+form {
+height: 500px;
+width: 350px;
+padding: 15px 10px 10px 10px;
+margin-top: 30px;
+font-weight: 700;
+font-size: 14px;
+background-color: rgba(170, 170, 170, 0.479);
+border: none;
+border-radius: 20px;
+box-sizing: border-box;
+border: 2px solid rgba(0, 0, 0, 0.02);
+text-align: center;
+font-family: 'Ubuntu', sans-serif;
+}
+
+.main-align{
+  display: flex;
+}
+
+.align-part{
+  padding: 1em;
+  border: none;
+  width: 50%;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+
+</style>
+
+<body>
+<!-- Wrap your entire app inside .window -->
+<div class="window-content">
+    <div class="padded-more">
+        <div class="main">
+            <div class="main-align">
+                <div class="align-part">
+                    <label for="videoCamera" class="h4 pt-5">Webcam</label>
+                    <img id="videoCamera" video="400px" src = "{{ url_for('stream_feed') }}">
+                </div>
+                <div class="align-part">
+                    <div class="container">
+                        <div class="row d-flex justify-content-center">
+                            <div class="col-6">
+                                <form>
+                                    <div class="form-group">
+                                        <label for="chat-text" class="h4 pt-5">Chatroom</label>
+                                        <textarea class="form-control" id="chat-text" rows="10"></textarea><br>
+                                    </div>
+                                    <div class="form-group">
+                                        <input class="form-control" id="input" type="text"></br>
+                                    </div>
+                                    <input class="btn btn-secondary btn-lg btn-block" id="submit" type="submit"
+                                           value="Send">
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button class="btn btn-large btn-negative" onclick="exitRoom()">Exit Room</button>
+    </div>
+</div>
+<script>
+        ipcRenderer.on('StudentRoomDisplay', (event, message, message1, token) => {
+            let roomName = message;
+            let user = message1
+            console.log(message); // Returns: {'SAVED': 'File Saved'}
+            console.log(roomName)
+            console.log(message1)
+            console.log(token)
+            console.log(token.token)
+            const chatSocket = connect(roomName, user)
+            document.querySelector('#submit').onclick = function(e) {
+                const messageInputDom = document.querySelector('#input');
+                const message = messageInputDom.value;
+                chatSocket.send(JSON.stringify({
+                    'message': message,
+                    'username': user,
+                }));
+                messageInputDom.value = '';
+                chatSocket.onclose()
+            };
+            console.log(roomName)
+            console.log(user)
+
+
+
+        });
+
+        function connect(roomName, User) {
+            const chatSocket = new WebSocket(
+                "ws://127.0.0.1:8000/ws/chat/" + User + "/" + roomName + "/"
+            );
+            chatSocket.onopen = function() {
+                // subscribe to some channels
+                chatSocket.send(JSON.stringify({
+                    //.... some message the I must send when I connect ....
+                    'message': 'User enterd the examination',
+                    'username': User,
+
+                }));
+
+                let ts = new Date();
+                let time = ts.getHours() + ":" + ts.getMinutes() + ":" + ts.getSeconds()
+                console.log(time)
+                    /*axios.post('http://127.0.0.1:8000/api/TimeLine/', {
+                        student: User,
+                        AItimeStamp: time,
+                        CurrentExam: roomName,
+                        AIdangerLevel: '0',
+                        AItextMessage: 'Entered examination'
+                    })*/
+            };
+
+
+            chatSocket.onmessage = function(e) {
+                const data = JSON.parse(e.data);
+                console.log(data)
+                document.querySelector('#chat-text').value += (data.username + ': ' + data.message + '\n')
+            }
+            chatSocket.onclose = function() {
+
+                chatSocket.send(JSON.stringify({
+                    //.... some message the I must send when I connect ....
+                    'message': 'User disconnected from the examination',
+                    'username': User,
+
+                }));
+                chatSocket.close()
+
+            };
+
+            chatSocket.onerror = function(e) {
+                console.log('Socket encountered error: ', e.message, 'Closing socket');
+                chatSocket.close();
+            };
+            return chatSocket
+        }
+
+        function exitRoom() {
+
+            ipcRenderer.send('window-all-closed')
+            console.log("window-all-closed")
+        }
+
+
+</script>
+</body>
+
+</html>
