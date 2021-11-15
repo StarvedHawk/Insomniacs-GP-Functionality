@@ -528,8 +528,10 @@ def index():
 
 @app.route('/main')
 def main():
+
+    data = [sys.argv[1],sys.argv[1]]
     """Video streaming"""
-    return render_template('StudentRoomDisplay.html')
+    return render_template('StudentRoomDisplay.html',data=data)
 
 @app.route('/stream_feed')
 def stream_feed():
@@ -574,11 +576,11 @@ def post_to_server(timeStamp,textMessage,DangerLevel):
 
     print(data)
 
-    try:
-        resp = requests.post(url, headers=headers, data=json.dumps(data))
-        print(resp.status_code)
-    except Exception:
-        print("Connection Error!")
+    # try:
+    #     resp = requests.post(url, headers=headers, data=json.dumps(data))
+    #     print(resp.status_code)
+    # except Exception:
+    #     print("Connection Error!")
 
 
 if __name__ == '__main__':

@@ -184,14 +184,9 @@ font-family: 'Ubuntu', sans-serif;
     </div>
 </div>
 <script>
-        ipcRenderer.on('StudentRoomDisplay', (event, message, message1, token) => {
-            let roomName = message;
-            let user = message1
-            console.log(message); // Returns: {'SAVED': 'File Saved'}
-            console.log(roomName)
-            console.log(message1)
-            console.log(token)
-            console.log(token.token)
+
+            let roomName = "{{data[1]}}";
+            let user = "{{data[0]}}"
             const chatSocket = connect(roomName, user)
             document.querySelector('#submit').onclick = function(e) {
                 const messageInputDom = document.querySelector('#input');
@@ -203,12 +198,6 @@ font-family: 'Ubuntu', sans-serif;
                 messageInputDom.value = '';
                 chatSocket.onclose()
             };
-            console.log(roomName)
-            console.log(user)
-
-
-
-        });
 
         function connect(roomName, User) {
             const chatSocket = new WebSocket(
@@ -218,7 +207,7 @@ font-family: 'Ubuntu', sans-serif;
                 // subscribe to some channels
                 chatSocket.send(JSON.stringify({
                     //.... some message the I must send when I connect ....
-                    'message': 'User enterd the examination',
+                    'message': 'User entered the examination',
                     'username': User,
 
                 }));
