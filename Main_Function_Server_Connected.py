@@ -81,17 +81,23 @@ MD_DANGER_REVIEW = 1 #HOW MANY STEPS BACK YOU LOOK FOR CHANGES
 MD_DANGER_REVIEW = MD_MAX_DANGER - MD_DANGER_REVIEW #ADJUST FOR ALGORITHM
 MD_PHONEME_THRESHOLD = 10
 
-
+CurrentWorkingDirectory = os.getcwd()
 
 
 #Models
 MD_face_detector = dlib.get_frontal_face_detector()  # detector
-MD_landmark_detector = dlib.shape_predictor(r"Resources/shape_predictor_68_face_landmarks.dat")  # predictor
 
-MD_CONFIG_PATH = 'Tensorflow/workspace/models/my_ssd_mobnet/pipeline.config'
-MD_WORKSPACE_PATH = 'Tensorflow/workspace'
-MD_SCRIPTS_PATH = 'Tensorflow/scripts'
-MD_APIMODEL_PATH = 'Tensorflow/models'
+#MD_landmark_detector = dlib.shape_predictor(os.path.join(CurrentWorkingDirectory,"Resources\shape_predictor_68_face_landmarks.dat"))  # predictor
+MD_landmark_detector = dlib.shape_predictor(r"C:\Users\faisa\PycharmProjects\Specula-Frontend\Insomniacs-GP-Functionality\Resources\shape_predictor_68_face_landmarks.dat")  # predictor
+
+MD_CONFIG_PATH = r'C:\Users\faisa\PycharmProjects\Specula-Frontend\Insomniacs-GP-Functionality\Tensorflow\workspace\models\my_ssd_mobnet\pipeline.config'
+#MD_CONFIG_PATH = 'Tensorflow/workspace/models/my_ssd_mobnet/pipeline.config'
+#MD_WORKSPACE_PATH = 'Tensorflow/workspace'
+MD_WORKSPACE_PATH = r'C:\Users\faisa\PycharmProjects\Specula-Frontend\Insomniacs-GP-Functionality\Tensorflow\workspace'
+#MD_SCRIPTS_PATH = 'Tensorflow/scripts'
+MD_SCRIPTS_PATH = r'C:\Users\faisa\PycharmProjects\Specula-Frontend\Insomniacs-GP-Functionality\Tensorflow\scripts'
+#MD_APIMODEL_PATH = 'Tensorflow/models'
+MD_APIMODEL_PATH = r'C:\Users\faisa\PycharmProjects\Specula-Frontend\Insomniacs-GP-Functionality\Tensorflow\workspace\models'
 MD_ANNOTATION_PATH = MD_WORKSPACE_PATH + '/annotations'
 MD_IMAGE_PATH = MD_WORKSPACE_PATH + '/images'
 MD_MODEL_PATH = MD_WORKSPACE_PATH + '/models'
@@ -529,7 +535,11 @@ def index():
 @app.route('/main')
 def main():
 
+<<<<<<< Updated upstream
     data = [sys.argv[1],sys.argv[1]]
+=======
+    data = [sys.argv[1],sys.argv[2]]
+>>>>>>> Stashed changes
     """Video streaming"""
     return render_template('StudentRoomDisplay.html',data=data)
 
