@@ -535,11 +535,7 @@ def index():
 @app.route('/main')
 def main():
 
-<<<<<<< Updated upstream
-    data = [sys.argv[1],sys.argv[1]]
-=======
     data = [sys.argv[1],sys.argv[2]]
->>>>>>> Stashed changes
     """Video streaming"""
     return render_template('StudentRoomDisplay.html',data=data)
 
