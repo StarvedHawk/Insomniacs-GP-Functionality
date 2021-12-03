@@ -31,6 +31,13 @@ from requests.structures import CaseInsensitiveDict
 #Requests
 Student_ID = 0
 Exam = ""
+Gaze_CoolDown = 10
+Mouth_CoolDown = 10
+Other_CoolDown = 10
+Other_Time = 0
+Gaze_Time = 0
+Mouth_Time = 0
+
 
 ##STATS
 #GAZE DETECTION CONFIG
@@ -251,7 +258,9 @@ def gen():
                                     Average_Percentage = Average_Percentage / n_clusters
                                     GD_Danger_Value = round((100 - Average_Percentage) / 100 * (MD_MAX_DANGER - 3))
                                     GD_msg = "Student is looking off screen ", round(100 - Average_Percentage,2), "% of the time"
-                                    post_to_server(Current_Time_Stamp, GD_msg, DangerLevel=GD_Danger_Value)
+                                    if Gaze_Time == 0:
+                                        Gaze_Time = Gaze_CoolDown
+                                        post_to_server(Current_Time_Stamp, GD_msg, DangerLevel=GD_Danger_Value)
                                 #print("-----------------------------------------------\n")
                             gaze_point_iter = (gaze_point_iter + 1) % DATA_POINT_LIMIT
                     else:
@@ -300,7 +309,9 @@ def gen():
                                     Average_Percentage = Average_Percentage / n_clusters
                                     GD_Danger_Value = round((100 - Average_Percentage) / 100 * (MD_MAX_DANGER-3))
                                     GD_msg = "Student is looking off screen ", round(100 - Average_Percentage, 2),"% of the time"
-                                    post_to_server(Current_Time_Stamp, GD_msg,DangerLevel=GD_Danger_Value)
+                                    if Gaze_Time == 0:
+                                        Gaze_Time = Gaze_CoolDown
+                                        post_to_server(Current_Time_Stamp, GD_msg,DangerLevel=GD_Danger_Value)
 
                                 #print("-----------------------------------------------\n")
                             gaze_point_iter = (gaze_point_iter + 1) % WINDOW_SIZE
@@ -417,17 +428,27 @@ def gen():
                             if MD_Danger_Value < 0:
                                 MD_Danger_Value = 0
                             if MD_Danger_Check and MD_Danger_Value > 25:
-                                post_to_server(Current_Time_Stamp, "Possible Speech: High Priority",
+                                if Mouth_Time == 0:
+                                    Mouth_Time = Mouth_CoolDown
+                                    post_to_server(Current_Time_Stamp, "Possible Speech: High Priority",
                                                DangerLevel=MD_Danger_Value)
                             if MD_Danger_Check and 25 >= MD_Danger_Value > 15:
-                                post_to_server(Current_Time_Stamp, "Possible Speech: Medium Priority",
+                                if Mouth_Time == 0:
+                                    Mouth_Time = Mouth_CoolDown
+                                    post_to_server(Current_Time_Stamp, "Possible Speech: Medium Priority",
                                                DangerLevel=MD_Danger_Value)
                             if MD_Danger_Check and 15 >= MD_Danger_Value > 10:
-                                post_to_server(Current_Time_Stamp, "Possible Speech: Low Priority",DangerLevel=MD_Danger_Value)
+                                if Mouth_Time == 0:
+                                    Mouth_Time = Mouth_CoolDown
+                                    post_to_server(Current_Time_Stamp, "Possible Speech: Low Priority",DangerLevel=MD_Danger_Value)
                         except:
-                            post_to_server(Current_Time_Stamp, "Multiple Faces Detected", DangerLevel=30)
+                            if Other_Time == 0:
+                                Other_Time = Other_CoolDown
+                                post_to_server(Current_Time_Stamp, "Multiple Faces Detected", DangerLevel=30)
                 else:
-                    post_to_server(Current_Time_Stamp, "No Faces Detected", DangerLevel=30)
+                    if Other_Time == 0:
+                        Other_Time = Other_CoolDown
+                        post_to_server(Current_Time_Stamp, "No Faces Detected", DangerLevel=30)
                 #print("-----------------------------------------------")
             else:
                 break
@@ -441,7 +462,16 @@ def gen():
                 break
             os.remove('temp.jpg')
         else:
-            post_to_server(Current_Time_Stamp,"Multiple Faces Detected",DangerLevel=30)
+            if Other_Time==0:
+                Other_Time = Other_CoolDown
+                post_to_server(Current_Time_Stamp,"Multiple Faces Detected",DangerLevel=30)
+
+        if Mouth_Time!=0:
+            Mouth_Time = Mouth_Time - 1
+        if Gaze_Time!=0:
+            Gaze_Time = Gaze_Time - 1
+        if Other_Time!=0:
+            Other_Time = Other_Time - 1
 
 def config():
     #Configuration file
@@ -562,13 +592,15 @@ def update_Screen(Temp_Screen):
     p = path.Path([Screen[0],Screen[1], Screen[2], Screen[3]])
 
 def post_to_server(timeStamp,textMessage,DangerLevel):
+
     global Student_ID
     global Exam
+
+
     url = "http://127.0.0.1:8000/api/TimeLine/"
 
     Danger_Text = str(DangerLevel)
     TS_Text = timeStamp.strftime('%Y-%m-%d %H:%M:%S')
-
     headers = CaseInsensitiveDict()
     headers["Accept"] = "application/json"
     headers["Content-Type"] = "application/json"
@@ -585,6 +617,8 @@ def post_to_server(timeStamp,textMessage,DangerLevel):
     # try:
     #     resp = requests.post(url, headers=headers, data=json.dumps(data))
     #     print(resp.status_code)
+    #     Gaze_Time = Gaze_CoolDown
+    #     Mouth_Time = Mouth_CoolDown
     # except Exception:
     #     print("Connection Error!")
 

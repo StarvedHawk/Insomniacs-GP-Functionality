@@ -2,3 +2,7 @@
 /.idea
 /.ipynb_checkpoints
 /.vs
+/Trial_testing/
+/video_capture_async/
+Multi_thread_cam_testing.py
+Separate_thread_testing.py
