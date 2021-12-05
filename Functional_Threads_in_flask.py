@@ -40,7 +40,7 @@ Screen_Captured=False
 #Create Flask Server
 app = Flask(__name__,template_folder='Templates')
 
-def gen(self, n_frames=500, width=1280, height=720):
+def gen(width=640, height=480):
     cap = VideoCaptureThreading(0)
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
@@ -76,13 +76,27 @@ def gen(self, n_frames=500, width=1280, height=720):
                               detection_model, category_index)
     thread2 = Gaze_Detection(2, "Thread-beta", cap, Student_ID, Exam, face_detector, landmark_detector, dbscan, p)
 
+    # thread3 = Main_Camera(3, "Thread-gamma", cap)
+
     # Start new Threads
     thread1.start()
     thread2.start()
+    # thread3.start()
 
     # Add threads to thread list
     threads.append(thread1)
     threads.append(thread2)
+    # threads.append(thread3)
+
+    gaze = GazeTracking()
+    while True:
+        ret, frame = cap.read()
+        cv2.waitKey(1) & 0xFF
+        gaze.refresh(frame)
+        frame = gaze.annotated_frame()
+        cv2.imwrite('temp.jpg', frame)
+        yield (b'--frame\r\n'b'Content-Type: image/jpeg\r\n\r\n' + open('temp.jpg', 'rb').read() + b'\r\n')
+        os.remove('temp.jpg')
 
     # Wait for all threads to complete
     for t in threads:
@@ -197,7 +211,7 @@ def stream_feed():
     global Exam
     Student_ID = sys.argv[1]
     Exam = sys.argv[2]
-    return Response(gen(),
+    return Response(gen(640,480),
                 mimetype='multipart/x-mixed-replace; boundary=frame')
 
 @app.route('/video_feed')
@@ -594,7 +608,33 @@ class Gaze_Detection(threading.Thread):
                 Gaze_Time = Gaze_Time - 1
             if Other_Time != 0:
                 Other_Time = Other_Time - 1
-            cv2.imshow("Screen",frame)
+            # cv2.imshow("Screen",frame)
+
+class Main_Camera(threading.Thread):
+    def __init__(self,
+                 threadID,
+                 name,
+                 cap,):
+        threading.Thread.__init__(self)
+        self.threadID = threadID
+        self.name = name
+        self.cap = cap
+    def run(self):
+        print("Starting " + self.name + " at " + time.ctime(time.time()))
+        t0 = time.time()
+        win_name = "cap_" + str(self.threadID)
+        gaze = GazeTracking()
+        while True:
+            ret, frame = self.cap.read()
+            cv2.waitKey(1) & 0xFF
+            gaze.refresh(frame)
+            frame = gaze.annotated_frame()
+            cv2.imwrite('temp.jpg', frame)
+            yield (b'--frame\r\n'b'Content-Type: image/jpeg\r\n\r\n' + open('temp.jpg', 'rb').read() + b'\r\n')
+            os.remove('temp.jpg')
+
+
+
 
 @tf.function
 def detect_fn(image,MD_detection_model):
