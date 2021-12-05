@@ -72,6 +72,7 @@ Screen_Captured = False
 
 
 ## ARTICULATION DETECTION CONFIG
+## ARTICULATION DETECTION CONFIG
 #Config Numbers
 MD_LIST_SIZE = 20
 MD_THRESHOLD = 50
@@ -94,17 +95,12 @@ CurrentWorkingDirectory = os.getcwd()
 #Models
 MD_face_detector = dlib.get_frontal_face_detector()  # detector
 
-#MD_landmark_detector = dlib.shape_predictor(os.path.join(CurrentWorkingDirectory,"Resources\shape_predictor_68_face_landmarks.dat"))  # predictor
+# predictor
 MD_landmark_detector = dlib.shape_predictor(r"C:\Users\faisa\PycharmProjects\Specula-Frontend\Insomniacs-GP-Functionality\Resources\shape_predictor_68_face_landmarks.dat")  # predictor
 
-MD_CONFIG_PATH = r'C:\Users\faisa\PycharmProjects\Specula-Frontend\Insomniacs-GP-Functionality\Tensorflow\workspace\models\my_ssd_mobnet\pipeline.config'
-#MD_CONFIG_PATH = 'Tensorflow/workspace/models/my_ssd_mobnet/pipeline.config'
-#MD_WORKSPACE_PATH = 'Tensorflow/workspace'
-MD_WORKSPACE_PATH = r'C:\Users\faisa\PycharmProjects\Specula-Frontend\Insomniacs-GP-Functionality\Tensorflow\workspace'
-#MD_SCRIPTS_PATH = 'Tensorflow/scripts'
-MD_SCRIPTS_PATH = r'C:\Users\faisa\PycharmProjects\Specula-Frontend\Insomniacs-GP-Functionality\Tensorflow\scripts'
-#MD_APIMODEL_PATH = 'Tensorflow/models'
-MD_APIMODEL_PATH = r'C:\Users\faisa\PycharmProjects\Specula-Frontend\Insomniacs-GP-Functionality\Tensorflow\workspace\models'
+MD_WORKSPACE_PATH = CurrentWorkingDirectory+'Tensorflow\workspace'
+MD_SCRIPTS_PATH = CurrentWorkingDirectory+'Tensorflow\scripts'
+MD_APIMODEL_PATH = MD_WORKSPACE_PATH+'models'
 MD_ANNOTATION_PATH = MD_WORKSPACE_PATH + '/annotations'
 MD_IMAGE_PATH = MD_WORKSPACE_PATH + '/images'
 MD_MODEL_PATH = MD_WORKSPACE_PATH + '/models'
@@ -465,7 +461,6 @@ def gen():
             if Other_Time==0:
                 Other_Time = Other_CoolDown
                 post_to_server(Current_Time_Stamp,"Multiple Faces Detected",DangerLevel=30)
-
         if Mouth_Time!=0:
             Mouth_Time = Mouth_Time - 1
         if Gaze_Time!=0:

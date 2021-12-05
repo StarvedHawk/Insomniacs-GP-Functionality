@@ -102,14 +102,13 @@ def copyPasteLogger(): # The following code tracks how many times ctrl + c and c
 	
 	def win32_event_filter(msg, data):
 		'''print(msg, data)'''
-
 	with keyboard.Listener(on_press=on_press, on_release=on_release, win32_event_filter=win32_event_filter, suppress=False) as listener:
 		listener.join()
 
 
 processLogger()
-
-schedule.every(1).minute.do(processLogger)
+copyPasteLogger()
+schedule.every(45).seconds.do(processLogger)	#schedules code to run
 
 while True:
 	schedule.run_pending()
