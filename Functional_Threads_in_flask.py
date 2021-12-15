@@ -29,6 +29,10 @@ import requests
 from requests.structures import CaseInsensitiveDict
 import cv2
 from video_capture_async.main.gfd.py.video.capture import VideoCaptureThreading
+import psutil
+import pandas as pd
+from pynput import keyboard
+import schedule
 
 gaze = GazeTracking()
 Student_ID = 6354279
@@ -47,17 +51,17 @@ def gen(width=640, height=480):
     cap.start()
     CurrentWorkingDirectory = os.getcwd()
     face_detector = dlib.get_frontal_face_detector()
-    landmark_detector = dlib.shape_predictor(
-        r"C:\Users\faisa\PycharmProjects\Specula-Frontend\Insomniacs-GP-Functionality\Resources\shape_predictor_68_face_landmarks.dat")  # predictor
-    MD_WORKSPACE_PATH = CurrentWorkingDirectory + '\Tensorflow\workspace'
-    MD_SCRIPTS_PATH = CurrentWorkingDirectory + '\Tensorflow\scripts'
-    MD_APIMODEL_PATH = MD_WORKSPACE_PATH + 'models'
-    MD_ANNOTATION_PATH = MD_WORKSPACE_PATH + '/annotations'
-    MD_IMAGE_PATH = MD_WORKSPACE_PATH + '/images'
-    MD_MODEL_PATH = MD_WORKSPACE_PATH + '/models'
-    MD_PRETRAINED_MODEL_PATH = MD_WORKSPACE_PATH + '/pre-trained-models'
-    MD_CONFIG_PATH = MD_MODEL_PATH + '/my_ssd_mobnet/pipeline.config'
-    MD_CHECKPOINT_PATH = MD_MODEL_PATH + '/my_ssd_mobnet/'
+    LANDMARKS_MODEL = CurrentWorkingDirectory+'\\Insomniacs-GP-Functionality\\Resources\\shape_predictor_68_face_landmarks.dat'
+    landmark_detector = dlib.shape_predictor(LANDMARKS_MODEL)  # predictor
+    MD_WORKSPACE_PATH = CurrentWorkingDirectory + '\\Insomniacs-GP-Functionality\\Tensorflow\\workspace'
+    MD_SCRIPTS_PATH = CurrentWorkingDirectory + '\\Tensorflow\scripts'
+    MD_APIMODEL_PATH = MD_WORKSPACE_PATH + '\models'
+    MD_ANNOTATION_PATH = MD_WORKSPACE_PATH + '\\annotations'
+    MD_IMAGE_PATH = MD_WORKSPACE_PATH + '\images'
+    MD_MODEL_PATH = MD_WORKSPACE_PATH + '\models'
+    MD_PRETRAINED_MODEL_PATH = MD_WORKSPACE_PATH + '\pre-trained-models'
+    MD_CONFIG_PATH = MD_MODEL_PATH + '\my_ssd_mobnet\pipeline.config'
+    MD_CHECKPOINT_PATH = MD_MODEL_PATH + '\my_ssd_mobnet\\'
 
     configs = config_util.get_configs_from_pipeline_file(MD_CONFIG_PATH)
     detection_model = model_builder.build(model_config=configs['model'], is_training=False)
@@ -75,18 +79,17 @@ def gen(width=640, height=480):
     thread1 = Mouth_Detection(1, "Thread-alpha", cap, Student_ID, Exam, face_detector, landmark_detector,
                               detection_model, category_index)
     thread2 = Gaze_Detection(2, "Thread-beta", cap, Student_ID, Exam, face_detector, landmark_detector, dbscan, p)
-
-    # thread3 = Main_Camera(3, "Thread-gamma", cap)
+    thread3 = Process_Monitoring(3, "Thread-gamma", 0,0)
 
     # Start new Threads
     thread1.start()
     thread2.start()
-    # thread3.start()
+    thread3.start()
 
     # Add threads to thread list
     threads.append(thread1)
     threads.append(thread2)
-    # threads.append(thread3)
+    threads.append(thread3)
 
     gaze = GazeTracking()
     while True:
@@ -461,6 +464,9 @@ class Gaze_Detection(threading.Thread):
         Other_Time = 0
         GD_Danger_Value = 0
 
+        No_Face = False
+        Multi_Face = False
+
         while True:
 
             ret, frame = self.cap.read()
@@ -476,6 +482,8 @@ class Gaze_Detection(threading.Thread):
                 if GD_Face_Number < 2:
                     if gaze.pupils_located:
                         if Screen_Captured:
+                            No_Face = False
+                            Multi_Face = False
                             text = ""
                             if gaze.is_blinking():
                                 text = "Blinking"
@@ -597,11 +605,13 @@ class Gaze_Detection(threading.Thread):
                     else:
                         cv2.putText(frame, "Lost eyes", (200, 200), cv2.FONT_HERSHEY_DUPLEX, 1.6, (77, 77, 209), 1)
                 else:
-                    if Other_Time == 0:
+                    if Other_Time == 0 and Multi_Face is False:
+                        Multi_Face = True
                         Other_Time = Other_CoolDown
                         post_to_server(Current_Time_Stamp, "Multiple Faces Detected", DangerLevel=30)
             else:
-                if Other_Time == 0:
+                if Other_Time == 0 and No_Face is False:
+                    No_Face = True
                     Other_Time = Other_CoolDown
                     post_to_server(Current_Time_Stamp, "No Faces Detected", DangerLevel=30)
             if Gaze_Time != 0:
@@ -633,8 +643,150 @@ class Main_Camera(threading.Thread):
             yield (b'--frame\r\n'b'Content-Type: image/jpeg\r\n\r\n' + open('temp.jpg', 'rb').read() + b'\r\n')
             os.remove('temp.jpg')
 
+class Process_Monitoring(threading.Thread):
+    def __init__(self,threadID,name,copyCounter,pasteCounter):
+        threading.Thread.__init__(self)
+        self.threadID = threadID
+        self.name =name
+        self.copyCounter = copyCounter
+        self.pasteCounter = pasteCounter
+    def run(self):
+        print("Starting " + self.name + " at " + time.ctime(time.time()))
+        t0 = time.time()
+        win_name = "cap_" + str(self.threadID)
+        schedule.every(1).minutes.do(self.processLogger)
+        schedule.every(5).minutes.do(self.copyPasteSend)
+        while True:
+            schedule.run_pending()
+
+    def processLogger(self): # This function saves all running into 3 json files
+
+        # Read whitelist and blacklist
+        blacklistData = pd.read_csv('Process_Monitoring\\Process_Data\\blacklist.csv', sep=',', engine='python', header=None)
+        dfb = pd.DataFrame(blacklistData)
+        blacklist = dfb.values.tolist()
+
+        whitelistData = pd.read_csv('Process_Monitoring\\Process_Data\\whitelist.csv', engine='python', header=None)
+        dfw = pd.DataFrame(whitelistData)
+        whitelist = dfw.values.tolist()
+
+        locTime = time.localtime()
+    
+        currentBlacklisted = []
+    
+        blacklistedNumber = 0
+        #The following code gets the current running process and saves them to different files depending on if they are present in the white or black list 
+        # or if they arent
+        for proc in psutil.process_iter():
+            try:
+                processName = proc.name()	
+                if any(processName in word for word in blacklist):
+                    
+                    blacklistedNumber += 1
+                    
+                
+                elif any(processName in word for word in whitelist):
+        
+                    whitelisted = {"Whitelisted process found: " : processName}
+                    
+
+                else:
+                    #save unique
+                    process = {"Unknown Process found" : processName}
+                    post_to_server(locTime,process, 20)
 
 
+
+            except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+                pass
+
+        blacklisted = {"Number of blacklisted found: " : blacklistedNumber}
+        post_to_server(locTime,blacklisted, 10)
+
+    def copyPasteLogger(self): # The following code tracks how many times ctrl + c and ctrl + v are pressed
+    
+        
+        # The key combination to check
+        copyComby = {keyboard.KeyCode.from_char('c'), keyboard.Key.ctrl_l,}
+        pasteComby = {keyboard.KeyCode.from_char('v'), keyboard.Key.ctrl_l,}
+        # The currently active modifiers
+        current = set()
+
+        # This code is for handling what happens when you press a key
+        def on_press(key):
+            copyCounter = self.copyCounter
+            pasteCounter = self.pasteCounter
+            try:
+                if key in copyComby:
+                    current.add(key)
+                    if all(k in current for k in copyComby):
+                        print("test")
+                        
+                        copyCounter += 1
+
+                if key in pasteComby:
+                    current.add(key)
+                    if all(k in current for k in pasteComby):
+                        pasteCounter += 1
+
+            except KeyboardInterrupt:
+                pass	
+            self.copyCounter = copyCounter
+            self.pasteCounter = pasteCounter
+        
+        def on_release(key):
+            try:
+                current.remove(key)
+            except (KeyError,KeyboardInterrupt):
+                pass
+        
+        def win32_event_filter(msg, data):
+            '''print(msg, data)'''
+
+        with keyboard.Listener(on_press=on_press, on_release=on_release, win32_event_filter=win32_event_filter, suppress=False) as listener:
+            listener.join()
+
+
+        while True:
+            self.copyPasteSend()
+            time.sleep(10)
+  
+    def copyPasteSend(self):
+        copyCounter = self.copyCounter
+        pasteCounter = self.pasteCounter
+        print("Running")
+        if (copyCounter > 0):
+            locTime = time.localtime()
+            print(copyCounter) 
+            copyLogged = {"Pressed ctrl + C" : copyCounter}
+            post_to_server(locTime,copyLogged, 20)
+            copyCounter = 0
+        if (pasteCounter > 0):
+            locTime = time.localtime()
+            print(pasteCounter)
+            pasteCounter = 0
+            pasteLogged = {"Pressed ctrl + C" : pasteCounter}
+            post_to_server(locTime,pasteLogged, 20)
+        isDone = 1
+        self.copyCounter = copyCounter
+        self.pasteCounter = pasteCounter
+        return isDone
+
+
+from flask import request
+
+
+def shutdown_server():
+    func = request.environ.get('werkzeug.server.shutdown')
+    if func is None:
+        raise RuntimeError('Not running with the Werkzeug Server')
+    func()
+
+
+@app.get('/shutdown')
+def shutdown():
+    shutdown_server()
+    return 'Server shutting down...'
 
 @tf.function
 def detect_fn(image,MD_detection_model):
@@ -649,7 +801,7 @@ def post_to_server(timeStamp,textMessage,DangerLevel):
     global Exam
 
 
-    url = "http://127.0.0.1:8000/api/TimeLine/"
+    url = "http://192.168.43.151:8000/api/TimeLine/"
 
     Danger_Text = str(DangerLevel)
     TS_Text = timeStamp.strftime('%Y-%m-%d %H:%M:%S')
@@ -666,13 +818,11 @@ def post_to_server(timeStamp,textMessage,DangerLevel):
 
     print(data)
 
-    # try:
-    #     resp = requests.post(url, headers=headers, data=json.dumps(data))
-    #     print(resp.status_code)
-    #     Gaze_Time = Gaze_CoolDown
-    #     Mouth_Time = Mouth_CoolDown
-    # except Exception:
-    #     print("Connection Error!")
+    try:
+        resp = requests.post(url, headers=headers, data=json.dumps(data))
+        print(resp.status_code)
+    except Exception:
+        print("Connection Error!")
 
 if __name__ == '__main__':
     app.run()

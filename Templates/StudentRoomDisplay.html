@@ -156,8 +156,8 @@ font-family: 'Ubuntu', sans-serif;
         <div class="main">
             <div class="main-align">
                 <div class="align-part">
-                    <label for="videoCamera" class="h4 pt-5">Webcam</label>
-                    <img id="videoCamera" video="400px" src = "{{ url_for('stream_feed') }}">
+<!--                    <label for="videoCamera" class="h4 pt-5">Webcam</label>-->
+                    <img id="videoCamera" height="400px" src = "{{ url_for('stream_feed') }}">
                 </div>
                 <div class="align-part">
                     <div class="container">
@@ -168,11 +168,6 @@ font-family: 'Ubuntu', sans-serif;
                                         <label for="chat-text" class="h4 pt-5">Chatroom</label>
                                         <textarea class="form-control" id="chat-text" rows="10"></textarea><br>
                                     </div>
-                                    <div class="form-group">
-                                        <input class="form-control" id="input" type="text"></br>
-                                    </div>
-                                    <input class="btn btn-secondary btn-lg btn-block" id="submit" type="submit"
-                                           value="Send">
                                 </form>
                             </div>
                         </div>
@@ -180,7 +175,7 @@ font-family: 'Ubuntu', sans-serif;
                 </div>
             </div>
         </div>
-        <button class="btn btn-large btn-negative" onclick="exitRoom()">Exit Room</button>
+<!--        <button class="btn btn-large btn-negative" onclick="exitRoom()">Exit Room</button>-->
     </div>
 </div>
 <script>
@@ -188,20 +183,20 @@ font-family: 'Ubuntu', sans-serif;
             let roomName = "{{data[1]}}";
             let user = "{{data[0]}}"
             const chatSocket = connect(roomName, user)
-            document.querySelector('#submit').onclick = function(e) {
-                const messageInputDom = document.querySelector('#input');
-                const message = messageInputDom.value;
-                chatSocket.send(JSON.stringify({
-                    'message': message,
-                    'username': user,
-                }));
-                messageInputDom.value = '';
-                chatSocket.onclose()
-            };
+            // document.querySelector('#submit').onclick = function(e) {
+            //     const messageInputDom = document.querySelector('#input');
+            //     const message = messageInputDom.value;
+            //     chatSocket.send(JSON.stringify({
+            //         'message': message,
+            //         'username': user,
+            //     }));
+            //     messageInputDom.value = '';
+            //     chatSocket.onclose()
+            // };
 
         function connect(roomName, User) {
             const chatSocket = new WebSocket(
-                "ws://127.0.0.1:8000/ws/chat/" + User + "/" + roomName + "/"
+                "ws://192.168.43.151:8000/ws/chat/" + User + "/" + roomName + "/"
             );
             chatSocket.onopen = function() {
                 // subscribe to some channels
@@ -250,7 +245,7 @@ font-family: 'Ubuntu', sans-serif;
         }
 
         function exitRoom() {
-
+            chatSocket.close()
             ipcRenderer.send('window-all-closed')
             console.log("window-all-closed")
         }
